@@ -1,0 +1,49 @@
+# .NET Core build outputs
+bin/
+obj/
+
+# User-specific files
+.vs/
+.idea/
+.vscode/
+*.user
+*.userosscache
+*.suo
+*.userprefs
+
+# Windows Installer files
+Thumbs.db
+ehthumbs.db
+
+# ASP.NET Core settings and logs
+appsettings.Development.json
+appsettings.Production.json
+appsettings.*.json
+logs/
+
+# .NET Core publish output
+publish/
+
+# NuGet packages
+*.nupkg
+.nuget/
+
+# Temporary build files
+.docker/
+.vscode/
+
+# npm and node_modules (if using Node.js for frontend)
+node_modules/
+
+# Published app (if using ASP.NET Core Publish)
+*.publish/
+
+# Docker files
+.docker/
+docker-compose.override.yml
+
+# JetBrains Rider
+.idea/
+
+# Visual Studio Code settings
+.vscode/
