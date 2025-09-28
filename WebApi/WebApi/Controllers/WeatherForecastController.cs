@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using WebApi.Models;
 
 namespace WebApi.Controllers
 {
@@ -12,10 +13,12 @@ namespace WebApi.Controllers
         };
 
         private readonly ILogger<WeatherForecastController> _logger;
+        private readonly AppDbContext _dbContext;
 
-        public WeatherForecastController(ILogger<WeatherForecastController> logger)
+        public WeatherForecastController(ILogger<WeatherForecastController> logger, AppDbContext appDbContext)
         {
             _logger = logger;
+            _dbContext = appDbContext;
         }
 
         [HttpGet(Name = "GetWeatherForecast")]
@@ -28,6 +31,13 @@ namespace WebApi.Controllers
                 Summary = Summaries[Random.Shared.Next(Summaries.Length)]
             })
             .ToArray();
+        }
+        [HttpPost(Name ="AddUser")]
+        public void AddU(Candidate candidate)
+        {
+            //User user = new User() { Email=userMail, FirstName="kishan", LastName="Koli", PasswordHash=password};
+            _dbContext.Candidates.Add(candidate);
+            _dbContext.SaveChanges();
         }
     }
 }

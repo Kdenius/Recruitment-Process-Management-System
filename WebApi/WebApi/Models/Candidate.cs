@@ -1,4 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
+using System.Text.Json.Serialization;
 using WebApi.Models;
 
 namespace WebApi.Models
@@ -30,12 +32,15 @@ namespace WebApi.Models
 
         public DateTime? JoiningDate { get; set; }
 
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public DateTime CreatedAt { get; set; }
 
         public string? ResumeUrl { get; set; }
 
-        public ICollection<CandidateApplication> CandidateApplications { get; set; }
-        public ICollection<CandidateSkill> CandidateSkills { get; set; }
+        [JsonIgnore]
+        public ICollection<CandidateApplication>? CandidateApplications { get; set; }
+        [JsonIgnore]
+        public ICollection<CandidateSkill>? CandidateSkills { get; set; }
     }
 }
 

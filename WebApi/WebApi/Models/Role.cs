@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.Text.Json.Serialization;
 
 namespace WebApi.Models
 {
@@ -10,7 +11,7 @@ namespace WebApi.Models
         [Required]
         [StringLength(50)]
         public string RoleName { get; set; }
-
+        [JsonIgnore]
         public ICollection<User> Users { get; set; }
     }
 }
