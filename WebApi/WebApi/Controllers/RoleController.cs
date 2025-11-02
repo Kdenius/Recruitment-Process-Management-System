@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using WebApi.Models;
+using WebApi.Repository;
 using WebApi.Services;
 
 namespace WebApi.Controllers
@@ -8,21 +9,21 @@ namespace WebApi.Controllers
     [ApiController]
     public class RoleController : ControllerBase
     {
-        private readonly IRoleService _roleService;
+        private readonly IRoleRepository _roleRepository;
 
-        public RoleController(IRoleService roleService)
+        public RoleController(IRoleRepository roleService)
         {
-            _roleService = roleService;
+            _roleRepository = roleService;
         }
         [HttpGet]
         public ActionResult<IEnumerable<Role>> GetAllRoles()
         {
-            return _roleService.GetRoles();
+            return _roleRepository.GetRoles();
         }
         [HttpPost]
-        public ActionResult<Role> AddRole([FromBody] string roleName)
+        public ActionResult<Role> AddRole(Role role)
         {
-           return _roleService.CreateRole(roleName);
+           return _roleRepository.CreateRole(role.RoleName);
         }
     }
 }

@@ -12,6 +12,6 @@ namespace WebApi.Models
         [StringLength(50)]
         public string RoleName { get; set; }
         [JsonIgnore]
-        public ICollection<User> Users { get; set; }
+        public ICollection<User>? Users { get; set; }
     }
 }
