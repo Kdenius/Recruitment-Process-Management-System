@@ -1,6 +1,8 @@
 ﻿using Microsoft.IdentityModel.Tokens;
+using Org.BouncyCastle.Bcpg;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
+using System.Security.Cryptography;
 using System.Text;
 using WebApi.Models;
 
@@ -8,7 +10,8 @@ namespace WebApi.Services
 {
     public interface IJwtTokenService
     {
-        string GenerateToken(User user);
+        string GenerateJwtToken(int userId, string mail, string role);
+        string GenerateRefreshToken();
     }
     public class JwtTokenService : IJwtTokenService
     {
@@ -18,15 +21,17 @@ namespace WebApi.Services
         {
             _config = config;
         }
-        public string GenerateToken(User user)
+        public string GenerateJwtToken(int userId, string mail, string role)
         {
             //int userId = user.UserId;
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_config["Jwt:Key"]));
             var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
             var claims = new[]
             {
-                new Claim(ClaimValueTypes.Integer, user.UserId.ToString()),
-                new Claim(ClaimTypes.Role, user.Role.ToString())
+                new Claim(JwtRegisteredClaimNames.Sub, userId.ToString()),
+                new Claim(JwtRegisteredClaimNames.Email, mail),
+                new Claim(JwtRegisteredClaimNames.Jti, userId.ToString()),
+                new Claim(ClaimTypes.Role, role)
             };
             var token = new JwtSecurityToken(issuer: _config["Jwt:Issuer"],
                 audience: _config["Jwt:Audience"],
@@ -36,6 +41,13 @@ namespace WebApi.Services
                 );
 
             return new JwtSecurityTokenHandler().WriteToken(token);
+        }
+        public string GenerateRefreshToken()
+        {
+            var randomNumber = new byte[32];
+            using var rng = RandomNumberGenerator.Create();
+            rng.GetBytes(randomNumber);
+            return Convert.ToBase64String(randomNumber);
         }
     }
 }

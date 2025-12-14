@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Cors;
+using Microsoft.AspNetCore.Identity.Data;
 using Microsoft.AspNetCore.Mvc;
 using WebApi.DTO;
 using WebApi.Models;
@@ -40,6 +41,29 @@ namespace WebApi.Controllers
            await _emailService.RegisterEmail(user);
             return Ok(user);
 
+        }
+        [HttpGet("verify/{token}/{id}")]
+        public async Task<IActionResult> Verify(string token, int id)
+        {
+            var user = _userRepository.GetById(id);
+            if (user == null)
+                return BadRequest( new { message = "User is not Exist." });
+            if (user.IsVerified)
+                return BadRequest(new { message = "Account is Already Verified." });
+            var isValid = _userRepository.VerifyToken(token, id);
+            if (!isValid)
+                return BadRequest(new { message = "Token is Invalid" });
+            return Ok(new{ message = "Verification Successfully"});
+
+        }
+
+        [HttpPost("login")]
+        public async Task<IActionResult> Login([FromBody] LoginRequest loginRequest)
+        {
+            var res = await _userRepository.Login(loginRequest);
+            if(res.Success)
+                return Ok(res);
+            return BadRequest(res);
         }
     }
 }

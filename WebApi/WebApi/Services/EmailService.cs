@@ -1,8 +1,10 @@
-﻿using System.Net.Mail;
-using System.Net;
+﻿using MailKit.Net.Smtp;
+using MailKit.Security; 
+using MimeKit;
 using WebApi.Services;
 using WebApi.Models;
 using Microsoft.AspNetCore.Http.HttpResults;
+using System.Runtime.InteropServices;
 
 namespace WebApi.Services
 {
@@ -30,25 +32,20 @@ namespace WebApi.Services
                 var smtpPort = int.Parse(_confi["EmailSettings:SmtpPort"]);
                 var senderEmail = _confi["EmailSettings:SenderEmail"];
                 var senderPassword = _confi["EmailSettings:SenderPassword"];
-                var enableSsl = bool.Parse(_confi["EmailSettings:EnableSsl"]);
+                // var enableSsl = bool.Parse(_confi["EmailSettings:EnableSsl"]);
 
-                using (var smtpClient = new SmtpClient(smtpServer, smtpPort))
+                var message = new MimeMessage();
+                message.From.Add(new MailboxAddress("RPMS",senderEmail));
+                message.To.Add(new MailboxAddress("",to));
+                message.Subject = subject;
+                message.Body = new TextPart(MimeKit.Text.TextFormat.Html) { Text = body };
+
+                using(var client = new MailKit.Net.Smtp.SmtpClient())
                 {
-                    smtpClient.Credentials = new NetworkCredential(senderEmail, senderPassword);
-                    smtpClient.EnableSsl = enableSsl;
-                    smtpClient.DeliveryMethod = SmtpDeliveryMethod.Network;
-                    smtpClient.UseDefaultCredentials = false;
-
-                    using (var mailMessage = new MailMessage())
-                    {
-                        mailMessage.From = new MailAddress(senderEmail);
-                        mailMessage.To.Add(to);
-                        mailMessage.Subject = subject;
-                        mailMessage.Body = body;
-                        mailMessage.IsBodyHtml = true;
-
-                        await smtpClient.SendMailAsync(mailMessage);
-                    }
+                    await client.ConnectAsync(smtpServer, smtpPort, SecureSocketOptions.StartTls);
+                    await client.AuthenticateAsync(senderEmail, senderPassword);
+                    await client.SendAsync(message);
+                    await client.DisconnectAsync(true);
                 }
 
                 _logger.LogInformation($"Email sent successfully to {to}");
@@ -66,6 +63,7 @@ namespace WebApi.Services
             string body = File.ReadAllText(templatePath);
 
             body = body.Replace("{{Token}}", user.VerifyToken)
+                       .Replace("{{UserId}}", user.UserId.ToString())
                        .Replace("{{Email}}", user.Email)
                        .Replace("{{Year}}", DateTime.Now.Year.ToString());
             await SendEmailAsync(user.Email, "Welcome to Our Platform", body);
