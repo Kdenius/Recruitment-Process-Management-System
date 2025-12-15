@@ -11,7 +11,7 @@ namespace WebApi.Services
     public interface IEmailService
     {
         Task SendEmailAsync(string to, string subject, string body);
-        Task RegisterEmail(User user);
+        Task RegisterEmail(User user, string verifyUrl);
     }
     public class EmailService : IEmailService
     {
@@ -57,15 +57,15 @@ namespace WebApi.Services
             }
 
         }
-        public async Task RegisterEmail(User user)
+        public async Task RegisterEmail(User user, string verifyUrl)
         {
             var templatePath = Path.Combine(Directory.GetCurrentDirectory(), "Template", "Register.html");
             string body = File.ReadAllText(templatePath);
 
             body = body.Replace("{{Token}}", user.VerifyToken)
-                       .Replace("{{UserId}}", user.UserId.ToString())
                        .Replace("{{Email}}", user.Email)
-                       .Replace("{{Year}}", DateTime.Now.Year.ToString());
+                       .Replace("{{Year}}", DateTime.Now.Year.ToString())
+                       .Replace("{{AppUrl}}", verifyUrl);
             await SendEmailAsync(user.Email, "Welcome to Our Platform", body);
         }
     }

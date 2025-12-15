@@ -13,6 +13,7 @@ namespace WebApi.Repository
     {
         User AddUser(UserDTO userDTO);
         User GetById(int id);
+        User GetByEmail(string email);
         bool VerifyToken(string token, int  userId);
         Task<ApiResponse<LoginResponseDTO>> Login(LoginRequest loginRequest);
     }
@@ -50,7 +51,11 @@ namespace WebApi.Repository
         }
         public User GetById(int id)
         {
-            return _con.Users.SingleOrDefault(user => user.UserId == id);
+            return _con.Users.FirstOrDefault(user => user.UserId == id);
+        }
+        public User GetByEmail(string email)
+        {
+            return _con.Users.FirstOrDefault(user => user.Email == email);
         }
 
         public bool VerifyToken(string token, int userId)
@@ -70,7 +75,9 @@ namespace WebApi.Repository
             var user = await _con.Users.FirstOrDefaultAsync(u => u.Email == loginRequest.Email);
             //if user null to fult and message not 
             if (user == null)
-                return new ApiResponse<LoginResponseDTO>(success: false, message: $"User is not Exist with {loginRequest.Email}", data:default);
+                return new ApiResponse<LoginResponseDTO>(success: false, message: $"User does not Exist with {loginRequest.Email}", data:default);
+            if (!user.IsVerified)
+                return new ApiResponse<LoginResponseDTO>(success: false, message: $"User not Verified! check Verification mail");
             if (_passwordHasher.VerifyHashedPassword(user, user.PasswordHash, loginRequest.Password) == PasswordVerificationResult.Failed)
                 return new ApiResponse<LoginResponseDTO>(success: false, message: $"Password mismatch", data: default);
 

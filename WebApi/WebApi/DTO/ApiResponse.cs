@@ -1,10 +1,18 @@
-﻿namespace WebApi.DTO
+﻿using System.Text;
+
+namespace WebApi.DTO
 {
     public class ApiResponse<T>
     {
         public bool Success { get; set; }
         public string Message { get; set; }
         public T? data { get; set; }
+
+        public ApiResponse(bool success, string message) { 
+            Success = success;
+            Message = message;
+            data = default;
+        }
         public ApiResponse(bool success, string message, T? data)
         {
             Success = success;

@@ -37,23 +37,34 @@ namespace WebApi.Controllers
         [HttpPost("register")]
         public async Task<IActionResult> Register(UserDTO userDTO)
         {
+            var exist = _userRepository.GetByEmail(userDTO.Email);
+            if (exist != null)
+                return Conflict(new ApiResponse<object>(success: false, message: $"Account already Exist with {userDTO.Email}"));
             var user = _userRepository.AddUser(userDTO);
-           await _emailService.RegisterEmail(user);
-            return Ok(user);
+            try
+            {
+                await _emailService.RegisterEmail(user, userDTO.ClientUrl);
+
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new ApiResponse<object>(success: false, message: $"Issue on mail verification, please check Address: {userDTO.Email}"));
+            }
+            return Ok(new ApiResponse<object>(success: true, message: $"Verification mail sent on {userDTO.Email}")); 
 
         }
-        [HttpGet("verify/{token}/{id}")]
-        public async Task<IActionResult> Verify(string token, int id)
+        [HttpGet("verify/{token}/{email}")]
+        public async Task<IActionResult> Verify(string token, string email)
         {
-            var user = _userRepository.GetById(id);
+            var user = _userRepository.GetByEmail(email);
             if (user == null)
-                return BadRequest( new { message = "User is not Exist." });
+                return BadRequest( new { message = "User does not Exist." });
             if (user.IsVerified)
-                return BadRequest(new { message = "Account is Already Verified." });
-            var isValid = _userRepository.VerifyToken(token, id);
+                return Accepted(new { message = "Account is Already Verified." });
+            var isValid = _userRepository.VerifyToken(token, user.UserId);
             if (!isValid)
                 return BadRequest(new { message = "Token is Invalid" });
-            return Ok(new{ message = "Verification Successfully"});
+            return Ok(new{ message = "Email Verified Successfully"});
 
         }
 
