@@ -29,6 +29,8 @@ namespace WebApi.Models
 
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public DateTime CreatedAt { get; set; }
+        public String? RefreshToken {  get; set; }
+        public DateTime? RefreshTokenExpiryTime { get; set; }
 
         // Navigation property
         public int RoleId { get; set; }

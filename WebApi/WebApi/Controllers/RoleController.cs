@@ -1,11 +1,12 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using WebApi.Models;
 using WebApi.Repository;
 using WebApi.Services;
 
 namespace WebApi.Controllers
 {
-    [Route("/role")]
+    [Route("role")]
     [ApiController]
     public class RoleController : ControllerBase
     {
@@ -16,9 +17,10 @@ namespace WebApi.Controllers
             _roleRepository = roleService;
         }
         [HttpGet]
+        [Authorize]
         public ActionResult<IEnumerable<Role>> GetAllRoles()
         {
-            return _roleRepository.GetRoles();
+            return Ok(_roleRepository.GetRoles());
         }
         [HttpPost]
         public ActionResult<Role> AddRole(Role role)

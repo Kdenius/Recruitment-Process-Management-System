@@ -1,9 +1,9 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { showToast } from '../components/common/toast';
+import toast, { showToast } from '../components/common/toast';
 
 const AuthContext = createContext(undefined);
 
-const ADMIN_PASSWORD = 'admin@123';
+// const ADMIN_PASSWORD = 'admin@123';
 const API_URI = import.meta.env.VITE_API_URI;
 
 
@@ -11,10 +11,30 @@ export function AuthProvider({ children }) {
     const [user, setUser] = useState(null);
 
     useEffect(() => {
-        const storedUser = localStorage.getItem('user');
-        if (storedUser) {
-            setUser(JSON.parse(storedUser));
+        const refreshToken = localStorage.getItem('refreshToken');
+        if (!refreshToken)
+            return;
+        console.log('comming heere');
+        const autoLogin = async () => {
+            try{
+                const ret = await fetch(API_URI+'/auth/refreshToken', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(refreshToken)
+                });
+                const res = await ret.json();
+                if(!ret.ok){
+                    console.log('to bhai token lochavalu che');
+                    localStorage.removeItem('refreshToken');
+                }
+                localStorage.setItem('refreshToken', res.data.refreshToken);
+                setUser(res.data);
+                showToast.success('Welcome, ' +res.data.firstName, 'Nice to see you again');
+            }catch(e){}
         }
+        autoLogin();
     }, []);
 
     const login = async (email, password) => {
@@ -46,20 +66,38 @@ export function AuthProvider({ children }) {
     };
 
     const adminLogin = async (password) => {
-        if (password !== ADMIN_PASSWORD) {
-            throw new Error('Invalid admin password');
-        }
-
+        const ret = await fetch(API_URI+'/auth/admin-login',{
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(password)
+        });
+        const res = await ret.json();
+        if(!ret.ok)
+            throw new Error(res.message);
         const adminUser = {
-            id: 'admin-1',
-            email: 'admin@system.com',
-            name: 'System Administrator',
-            role: 'admin',
-            createdAt: new Date().toISOString(),
-        };
+            firstName: 'Administrator',
+            jwtToken: res.data,
+            roleName: 'Admin'
+        }
+        setUser(adminUser)
+        // console.log(res.data)
+        showToast.success('Welcom Admin', 'Logged in Successfully')
+        // if (password !== ADMIN_PASSWORD) {
+        //     throw new Error('Invalid admin password');
+        // }
 
-        setUser(adminUser);
-        localStorage.setItem('user', JSON.stringify(adminUser));
+        // const adminUser = {
+        //     id: 'admin-1',
+        //     email: 'admin@system.com',
+        //     name: 'System Administrator',
+        //     role: 'admin',
+        //     createdAt: new Date().toISOString(),
+        // };
+
+        // setUser(adminUser);
+        // localStorage.setItem('user', JSON.stringify(adminUser));
     };
 
     const signup = async (email, password, fname, lname) => {
@@ -95,12 +133,12 @@ export function AuthProvider({ children }) {
 
     const logout = () => {
         setUser(null);
-        localStorage.removeItem('user');
+        localStorage.removeItem('refreshToken');
     };
 
     const hasRole = (roles) => {
         if (!user) return false;
-        return roles.includes(user.role);
+        return roles.includes(user.roleName);
     };
 
     return (

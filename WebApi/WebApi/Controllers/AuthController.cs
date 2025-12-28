@@ -13,18 +13,6 @@ namespace WebApi.Controllers
     //[EnableCors("AllowAll")]
     public class AuthController : ControllerBase
     {
-        /*private readonly IJwtTokenService _jwtTokenService;
-
-        public AuthController(IJwtTokenService jwtTokenService)
-        {
-            _jwtTokenService = jwtTokenService;
-        }
-
-        [HttpPost("login")]
-        public void Login([FromBody] string userMail, [FromBody] string password)
-        {
-            return;
-        }*/
         private readonly IUserRepository _userRepository;
         private readonly IEmailService _emailService;
 
@@ -75,6 +63,24 @@ namespace WebApi.Controllers
             if(res.Success)
                 return Ok(res);
             return BadRequest(res);
+        }
+
+        [HttpPost("refreshToken")]
+        public async Task<IActionResult> RefreshToken([FromBody] string refreshToken)
+        {
+            var res = await _userRepository.LoginViaRefreshToken(refreshToken);
+            if(res.Success)
+                return Ok(res);
+            return Unauthorized(res);
+        }
+
+        [HttpPost("admin-login")]
+        public async Task<IActionResult> AdminLogin([FromBody] string password)
+        {
+            var ret = _userRepository.VerifyAdmin(password);
+            if(!ret.Success)
+                return Unauthorized(ret);
+            return Ok(ret);
         }
     }
 }

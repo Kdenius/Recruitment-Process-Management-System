@@ -36,7 +36,7 @@ namespace WebApi.Services
             var token = new JwtSecurityToken(issuer: _config["Jwt:Issuer"],
                 audience: _config["Jwt:Audience"],
                 claims: claims,
-                expires: DateTime.UtcNow.AddDays(Convert.ToInt16(_config["Jwt:ExpiresInDays"])),
+                expires: DateTime.UtcNow.AddMinutes(Convert.ToInt16(_config["Jwt:ExpiresInMinutes"])),
                 signingCredentials: creds
                 );
 

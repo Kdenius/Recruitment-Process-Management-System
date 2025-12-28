@@ -17,49 +17,49 @@ const navItems = [
     name: 'Dashboard',
     path: '/dashboard',
     icon: LayoutDashboard,
-    roles: ['admin', 'recruiter', 'hr', 'interviewer', 'reviewer', 'viewer'],
+    roles: ['Admin', 'recruiter', 'hr', 'interviewer', 'reviewer', 'viewer'],
   },
   {
     name: 'Jobs',
     path: '/jobs',
     icon: Briefcase,
-    roles: ['admin', 'recruiter', 'hr', 'viewer'],
+    roles: ['Admin', 'recruiter', 'hr', 'viewer'],
   },
   {
     name: 'Candidates',
     path: '/candidates',
     icon: Users,
-    roles: ['admin', 'recruiter', 'hr', 'reviewer', 'interviewer', 'viewer'],
+    roles: ['Admin', 'recruiter', 'hr', 'reviewer', 'interviewer', 'viewer'],
   },
   {
     name: 'Interviews',
     path: '/interviews',
     icon: Calendar,
-    roles: ['admin', 'recruiter', 'hr', 'interviewer', 'viewer'],
+    roles: ['Admin', 'recruiter', 'hr', 'interviewer', 'viewer'],
   },
   {
     name: 'Documents',
     path: '/documents',
     icon: FileText,
-    roles: ['admin', 'hr', 'viewer'],
+    roles: ['Admin', 'hr', 'viewer'],
   },
   {
     name: 'Reports',
     path: '/reports',
     icon: BarChart3,
-    roles: ['admin', 'recruiter', 'hr', 'viewer'],
+    roles: ['Admin', 'recruiter', 'hr', 'viewer'],
   },
   {
     name: 'Users',
     path: '/users',
     icon: UserCog,
-    roles: ['admin'],
+    roles: ['Admin'],
   },
   {
     name: 'Settings',
     path: '/settings',
     icon: Settings,
-    roles: ['admin', 'recruiter', 'hr'],
+    roles: ['Admin', 'recruiter', 'hr'],
   },
 ];
 
@@ -67,7 +67,7 @@ export function Sidebar() {
   const location = useLocation();
   const { user } = useAuth();
   const filteredNavItems = navItems.filter((item) =>
-    item.roles.includes(user?.roleName.toLowerCase() || '')
+    item.roles.includes(user?.roleName || '')
   );
 
   return (
