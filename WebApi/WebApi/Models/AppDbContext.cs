@@ -62,6 +62,7 @@ namespace WebApi.Models
 
         }
         public DbSet<User> Users { get; set; }
+        public DbSet<Position> Positions { get; set; }  
         public DbSet<Role> Roles { get; set; }
         public DbSet<Skill> Skills { get; set; }
         public DbSet<PositionSkill> PositionSkills { get; set; }

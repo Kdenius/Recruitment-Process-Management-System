@@ -20,8 +20,8 @@ namespace WebApi.Repository
 
         Role IRoleRepository.CreateRole(string roleName)
         {
-            Console.WriteLine("where it printed");
-            Console.WriteLine(roleName);
+           // Console.WriteLine("where it printed");
+            //Console.WriteLine(roleName);
             var role = new Role()
             {
                 RoleName = roleName

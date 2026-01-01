@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.Text.Json.Serialization;
 using WebApi.Models;
 
 namespace WebApi.Models
@@ -18,7 +19,7 @@ namespace WebApi.Models
         [StringLength(20)]
         public string Status { get; set; } // Open,On Hold, Closed
 
-        public string CloserReason { get; set; }
+        public string? CloserReason { get; set; }
 
         public int Rounds { get; set; }
 
@@ -27,6 +28,7 @@ namespace WebApi.Models
         public int RecruiterId { get; set; }
         public User Recruiter { get; set; }
 
+        [JsonIgnore]
         public ICollection<PositionSkill> PositionSkills { get; set; }
         public ICollection<CandidateApplication> CandidateApplications { get; set; }
     }

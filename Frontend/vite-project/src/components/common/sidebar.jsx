@@ -17,25 +17,25 @@ const navItems = [
     name: 'Dashboard',
     path: '/dashboard',
     icon: LayoutDashboard,
-    roles: ['Admin', 'recruiter', 'hr', 'interviewer', 'reviewer', 'viewer'],
+    roles: ['Admin', 'Recruiter', 'hr', 'interviewer', 'reviewer', 'viewer'],
   },
   {
     name: 'Jobs',
     path: '/jobs',
     icon: Briefcase,
-    roles: ['Admin', 'recruiter', 'hr', 'viewer'],
+    roles: ['Admin', 'Recruiter', 'hr', 'viewer'],
   },
   {
     name: 'Candidates',
     path: '/candidates',
     icon: Users,
-    roles: ['Admin', 'recruiter', 'hr', 'reviewer', 'interviewer', 'viewer'],
+    roles: ['Admin', 'Recruiter', 'hr', 'reviewer', 'interviewer', 'viewer'],
   },
   {
     name: 'Interviews',
     path: '/interviews',
     icon: Calendar,
-    roles: ['Admin', 'recruiter', 'hr', 'interviewer', 'viewer'],
+    roles: ['Admin', 'Recruiter', 'hr', 'interviewer', 'viewer'],
   },
   {
     name: 'Documents',
@@ -47,7 +47,7 @@ const navItems = [
     name: 'Reports',
     path: '/reports',
     icon: BarChart3,
-    roles: ['Admin', 'recruiter', 'hr', 'viewer'],
+    roles: ['Admin', 'Recruiter', 'hr', 'viewer'],
   },
   {
     name: 'Users',
@@ -59,7 +59,7 @@ const navItems = [
     name: 'Settings',
     path: '/settings',
     icon: Settings,
-    roles: ['Admin', 'recruiter', 'hr'],
+    roles: ['Admin', 'Recruiter', 'hr'],
   },
 ];
 

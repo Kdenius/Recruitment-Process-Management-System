@@ -84,20 +84,6 @@ export function AuthProvider({ children }) {
         setUser(adminUser)
         // console.log(res.data)
         showToast.success('Welcom Admin', 'Logged in Successfully')
-        // if (password !== ADMIN_PASSWORD) {
-        //     throw new Error('Invalid admin password');
-        // }
-
-        // const adminUser = {
-        //     id: 'admin-1',
-        //     email: 'admin@system.com',
-        //     name: 'System Administrator',
-        //     role: 'admin',
-        //     createdAt: new Date().toISOString(),
-        // };
-
-        // setUser(adminUser);
-        // localStorage.setItem('user', JSON.stringify(adminUser));
     };
 
     const signup = async (email, password, fname, lname) => {

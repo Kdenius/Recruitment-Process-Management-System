@@ -10,6 +10,7 @@ import { Layout } from './components/layout'
 import ProtectedRoute from './components/protectedRoute'
 import { AdminLogin } from './pages/adminLogin'
 import { Users } from './pages/users'
+import { Jobs } from './pages/job'
 
 function App() {
   return (
@@ -25,6 +26,7 @@ function App() {
         <Route path="dashboard" element={<ProtectedRoute><Layout><Dashboard/></Layout></ProtectedRoute>}/>
         <Route path="users" element={<ProtectedRoute allowedRoles={'Admin'}><Layout><Users/></Layout></ProtectedRoute>}/>
         <Route path="" element={<ProtectedRoute><Layout><Dashboard/></Layout></ProtectedRoute>}/>
+        <Route path="jobs" element={<Layout><Jobs/></Layout>}/>
       </Routes>
     </Router>
     </AuthProvider>
