@@ -21,7 +21,6 @@ namespace WebApi.Controllers
         }
 
         [HttpPost]
-        [Route("create")]
         public async Task<IActionResult> CreatePosition([FromBody] PositionDTO positionDTO)
         {
             if (positionDTO == null)

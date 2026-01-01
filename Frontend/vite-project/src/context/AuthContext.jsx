@@ -83,7 +83,7 @@ export function AuthProvider({ children }) {
         }
         setUser(adminUser)
         // console.log(res.data)
-        showToast.success('Welcom Admin', 'Logged in Successfully')
+    showToast.success('Welcom Admin', 'Logged in Successfully')
     };
 
     const signup = async (email, password, fname, lname) => {

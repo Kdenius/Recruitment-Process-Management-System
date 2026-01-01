@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Card } from '../components/common/Card';
 import { Button } from '../components/common/button';
 import { Modal } from '../components/common/modal';
@@ -6,18 +6,109 @@ import { Input } from '../components/common/input';
 import { Select } from '../components/common/select';
 import { showToast } from '../components/common/toast';
 import { Briefcase, Plus, Search, Filter, Edit, Pause, CheckCircle, XCircle } from 'lucide-react';
+import { useAuth } from '../context/AuthContext';
 
 export function Jobs() {
     const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
     const [searchTerm, setSearchTerm] = useState('');
     const [statusFilter, setStatusFilter] = useState('all');
+    const [formData, setFormData] = useState({
+        title: '',
+        description: '',
+        status: 'Open',
+        rounds: 1,
+        skillIds: []
+    });
+    const { user } = useAuth()
+    const [availableSkills, setAvailableSkills] = useState([]);
+    const [selectedSkills, setSelectedSkills] = useState([]);
+    const handleSkillSelect = (skillId) => {
+        if (!skillId) return;
+        const skill = availableSkills.find(s => s.skillId === parseInt(skillId));
 
-    const handleCreateJob = (e) => {
-        e.preventDefault();
-        setIsCreateModalOpen(false);
-        showToast.success('Job Created', 'New job opening has been created successfully');
+        if (skill && !formData.skillIds.includes(skill.skillId)) {
+            setFormData({
+                ...formData,
+                skillIds: [...formData.skillIds, skill.skillId]
+            });
+            setSelectedSkills([...selectedSkills, skill]);
+        }
+    }
+
+    const removeSkill = (skillId) => {
+        setFormData({
+            ...formData,
+            skillIds: formData.skillIds.filter(id => id !== skillId)
+        });
+        setSelectedSkills(selectedSkills.filter(s => s.skillId !== skillId));
     };
 
+    useEffect(() => {
+        const getSkill = async () => {
+            try {
+
+                const ret = await fetch(import.meta.env.VITE_API_URI + '/skill', {
+                    headers: {
+                        'Content-Type': 'application/json',
+                        // 'Authorization': `Bearer ${user.jwtToken}`
+                    }
+                })
+                const res = await ret.json();
+                if (ret.ok)
+                    new Error(res.message);
+                console.log(res)
+                setAvailableSkills(res);
+            } catch (e) {
+                console.error(error);
+                showToast.error('Error', 'Something went wrong during fetch skills');
+            }
+        }
+        // fetch(import.meta.env.VITE_API_URI + '/skill')
+        //     .then(res => res.json())
+        //     .then(data => {
+        //         setAvailableSkills(data);
+        //     });
+        getSkill();
+    }, []);
+
+    const handleCreateJob = async (e) => {
+        e.preventDefault();
+
+        const positionData = {
+            title: formData.title,
+            description: formData.description,
+            status: formData.status,
+            rounds: formData.rounds,
+            recruiterId: user.userID,
+            skillIds: formData.skillIds
+        };
+        console.log(positionData)
+        console.log(user)
+
+        try {
+            const response = await fetch(import.meta.env.VITE_API_URI + '/position', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    // 'Authorization': `Bearer ${user.jwtToken}`
+                },
+                body: JSON.stringify(positionData)
+            });
+
+            if (!response.ok) {
+                throw new Error('Failed to create job');
+            }
+
+            const result = await response.json();
+            console.log(result);
+            showToast.success('Job Created', 'New job opening has been created successfully');
+            setIsCreateModalOpen(false);
+        } catch (error) {
+            console.error(error);
+            showToast.error('Error', 'Something went wrong while creating the job');
+        }
+
+    }
     const jobs = [
         { id: '1', title: 'Senior Full Stack Developer', department: 'Engineering', location: 'Remote', status: 'open', applicants: 45, createdDate: '2024-01-15' },
         { id: '2', title: 'UI/UX Designer', department: 'Design', location: 'New York', status: 'open', applicants: 32, createdDate: '2024-01-18' },
@@ -143,48 +234,86 @@ export function Jobs() {
                 size="lg"
             >
                 <form onSubmit={handleCreateJob} className="space-y-4">
-                    <Input label="Job Title" placeholder="e.g., Senior Full Stack Developer" required />
+                    <Input
+                        label="Position Title"
+                        placeholder="e.g. Senior Full Stack Developer"
+                        value={formData.title}
+                        onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+                        required
+                    />
                     <div className="grid grid-cols-2 gap-4">
+                        {/* Status */}
                         <Select
-                            label="Department"
+                            label="Status"
+                            value={formData.status}
+                            onChange={(e) => setFormData({ ...formData, status: e.target.value })}
                             options={[
-                                { value: '', label: 'Select Department' },
-                                { value: 'engineering', label: 'Engineering' },
-                                { value: 'design', label: 'Design' },
-                                { value: 'product', label: 'Product' },
-                                { value: 'data', label: 'Data' },
+                                { value: 'Open', label: 'Open' },
+                                { value: 'On Hold', label: 'On Hold' },
+                                { value: 'Closed', label: 'Closed' },
                             ]}
-                            required
                         />
-                        <Select
-                            label="Job Type"
-                            options={[
-                                { value: '', label: 'Select Type' },
-                                { value: 'fulltime', label: 'Full Time' },
-                                { value: 'parttime', label: 'Part Time' },
-                                { value: 'contract', label: 'Contract' },
-                            ]}
+                        {/* Rounds */}
+                        <Input
+                            type="number"
+                            label="Interview Rounds"
+                            min="1"
+                            value={formData.rounds}
+                            onChange={(e) => setFormData({ ...formData, rounds: parseInt(e.target.value) })}
                             required
                         />
                     </div>
-                    <Input label="Location" placeholder="e.g., Remote, New York, etc." required />
+
+                    <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">Required Skills</label>
+                        <Select
+                            value=""
+                            onChange={(e) => handleSkillSelect(e.target.value)}
+                            options={[
+                                { value: '', label: 'Select a skill...' },
+                                ...availableSkills.map((s) => ({ value: s.skillId, label: s.skillName }))
+                            ]}
+                        />
+
+                        {/* Selected Skills Tags */}
+                        <div className="flex flex-wrap gap-2 mt-3">
+                            {selectedSkills.map((skill) => (
+                                <span key={skill.skillId} className="inline-flex items-center bg-green-50 text-green-700 text-sm px-3 py-1 rounded-full border border-green-200">
+                                    {skill.skillName}
+                                    <button
+                                        type="button"
+                                        onClick={() => removeSkill(skill.skillId)}
+                                        className="ml-2 text-green-500 hover:text-green-800"
+                                    >
+                                        <XCircle className="w-4 h-4" />
+                                    </button>
+                                </span>
+                            ))}
+                        </div>
+                    </div>
+
+                    {/* Description */}
                     <div>
                         <label className="block text-sm font-medium text-gray-700 mb-1">Job Description</label>
                         <textarea
                             rows={4}
                             className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
                             placeholder="Enter job description..."
+                            value={formData.description}
+                            onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                            required
                         ></textarea>
                     </div>
+
                     <div className="flex justify-end space-x-3 pt-4">
                         <Button variant="secondary" onClick={() => setIsCreateModalOpen(false)}>
                             Cancel
                         </Button>
-                        <Button type="submit">Create Job</Button>
+                        <Button type="submit">Create Position</Button>
                     </div>
                 </form>
             </Modal>
         </div>
     );
-}
 
+}
