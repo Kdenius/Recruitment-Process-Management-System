@@ -109,6 +109,7 @@ export function Jobs() {
         }
 
     }
+    //statik data for tamplet
     const jobs = [
         { id: '1', title: 'Senior Full Stack Developer', department: 'Engineering', location: 'Remote', status: 'open', applicants: 45, createdDate: '2024-01-15' },
         { id: '2', title: 'UI/UX Designer', department: 'Design', location: 'New York', status: 'open', applicants: 32, createdDate: '2024-01-18' },
