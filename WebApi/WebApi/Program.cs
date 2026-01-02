@@ -20,6 +20,7 @@ builder.Services.AddScoped<ISkillRepository, SkillRepository>();
 builder.Services.AddScoped<IPositionRepository, PositionRepository>();
 builder.Services.AddScoped<ICandidateRepository, CandidateRepository>();
 builder.Services.AddSingleton<IFileUploadService, FileUploadService>();
+builder.Services.AddScoped<ICandidateApplicationRepository, CandidateApplicationRepository>();
 builder.Services.AddLogging();
 
 builder.Services.AddCors(options =>

@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using WebApi.DTO;
 using WebApi.Models;
 using WebApi.Repository;
@@ -15,14 +16,18 @@ namespace WebApi.Controllers
         private readonly IRoleRepository _roleRepository;
         private readonly IFileUploadService _fileUploadService;
         private readonly ISkillRepository _skillRepository;
+        private readonly ICandidateApplicationRepository _candidateApplicationRepository;
+        private readonly IPositionRepository _positionRepository;
 
-        public CandidateController(ICandidateRepository candidateRepository, IEmailService emailService, IRoleRepository roleRepository, IFileUploadService fileUploadService, ISkillRepository skillRepository)
+        public CandidateController(ICandidateRepository candidateRepository, IEmailService emailService, IRoleRepository roleRepository, IFileUploadService fileUploadService, ISkillRepository skillRepository, ICandidateApplicationRepository candidateApplicationRepository, IPositionRepository positionRepository)
         {
             _candidateRepository = candidateRepository;
             _emailService = emailService;
             _roleRepository = roleRepository;
             _fileUploadService = fileUploadService;
             _skillRepository = skillRepository;
+            _candidateApplicationRepository = candidateApplicationRepository;
+            _positionRepository = positionRepository;
         }
 
         [HttpPost]
@@ -76,6 +81,39 @@ namespace WebApi.Controllers
         {
             var pos = await _candidateRepository.GetAllCandidatesAsync();
             return Ok(pos);
+        }
+
+        [HttpPost("apply")]
+        public async Task<IActionResult> ApplyForJobAsync([FromBody] JobApplicationDTO jobApplicationDTO)
+        {
+            if (jobApplicationDTO == null || jobApplicationDTO.CandidateId <= 0 || jobApplicationDTO.PositionId <= 0)
+            {
+                return BadRequest("Invalid application data.");
+            }
+
+            var candidateApplication = new CandidateApplication
+            {
+                CandidateId = jobApplicationDTO.CandidateId,
+                PositionId = jobApplicationDTO.PositionId,
+                IsOnHold = false,
+                OnHoldReason = string.Empty
+            };
+
+            await _candidateApplicationRepository.CreateApplication(candidateApplication);
+            var can = await _candidateRepository.GetById(candidateApplication.CandidateId);
+            var job = await _positionRepository.GetPositionByIdAsync(candidateApplication.PositionId);
+            try
+            {
+                await _emailService.ApplicationAknow(can.Name, can.Email, job.Title, DateTime.Now.ToShortDateString());
+
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new ApiResponse<object>(success: false, message: $"error on mail, please check Address"));
+
+            }
+
+            return Ok(candidateApplication);
         }
     }
 }

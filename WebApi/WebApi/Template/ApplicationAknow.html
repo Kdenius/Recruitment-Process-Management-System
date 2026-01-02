@@ -1,0 +1,98 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #e0f7fa;
+            padding: 40px;
+            margin: 0;
+        }
+
+        .container {
+            background-color: #ffffff;
+            max-width: 600px;
+            margin: auto;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+            border: 2px solid #0097a7;
+        }
+
+        h2 {
+            background-color: #0097a7;
+            color: #ffffff;
+            padding: 15px;
+            margin: -30px -30px 20px -30px;
+            border-top-left-radius: 12px;
+            border-top-right-radius: 12px;
+            text-align: center;
+        }
+
+        .details-box {
+            background-color: #f1f8f9;
+            border-left: 4px solid #00796b;
+            padding: 15px;
+            margin: 20px 0;
+        }
+
+        p {
+            font-size: 16px;
+            color: #333333;
+            margin: 10px 0;
+            line-height: 1.6;
+        }
+
+        .status-badge {
+            display: inline-block;
+            background-color: #b2dfdb;
+            color: #004d40;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: bold;
+        }
+
+        .footer {
+            margin-top: 30px;
+            font-size: 14px;
+            color: #555;
+            text-align: center;
+            border-top: 1px solid #ddd;
+            padding-top: 15px;
+        }
+
+        strong {
+            color: #00796b;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Application Received!</h2>
+
+        <p>Dear <strong>{{CandidateName}}</strong>,</p>
+
+        <p>Thank you for your interest in joining our team! We have successfully received your application for the following position:</p>
+
+        <div class="details-box">
+            <p><strong>Job Position:</strong> {{JobTitle}}</p>
+            <p><strong>Application Date:</strong> {{ApplicationDate}}</p>
+            <p><strong>Status:</strong> <span class="status-badge">Under Review</span></p>
+        </div>
+
+        <p><strong>What’s Next?</strong></p>
+        <p>Our recruitment team is currently reviewing your profile and skills. If your experience matches our requirements, we will reach out to schedule an <strong>interview round</strong> shortly.</p>
+
+        <p>You can track your application progress at any time by logging into your candidate dashboard.</p>
+
+        <p>We appreciate your patience and look forward to potentially working with you!</p>
+
+        <div class="footer">
+            &copy; {{Year}} RPMS Recruitment Team. <br>
+            <em>Connecting talent with opportunity.</em>
+        </div>
+    </div>
+</body>
+</html>

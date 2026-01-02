@@ -11,6 +11,7 @@ namespace WebApi.Repository
     {
         Task<Candidate> CreateCandidateAsync(Candidate candidate);
         Task<IEnumerable<Candidate>> GetAllCandidatesAsync();
+        Task<Candidate> GetById(int id);
 
     }
     public class CandidateRepository : ICandidateRepository
@@ -36,6 +37,11 @@ namespace WebApi.Repository
         public async Task<IEnumerable<Candidate>> GetAllCandidatesAsync()
         {
             return await _con.Candidates.ToListAsync();
+        }
+
+        public async Task<Candidate> GetById(int id)
+        {
+            return await _con.Candidates.FirstOrDefaultAsync(c => c.CandidateId == id);
         }
 
     }

@@ -30,6 +30,7 @@ namespace WebApi.Models
 
         [JsonIgnore]
         public ICollection<PositionSkill> PositionSkills { get; set; }
+        [JsonIgnore]
         public ICollection<CandidateApplication> CandidateApplications { get; set; }
     }
 }
