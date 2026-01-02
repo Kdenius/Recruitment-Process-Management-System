@@ -1,0 +1,101 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #e0f7fa;
+            padding: 40px;
+            margin: 0;
+        }
+
+        .container {
+            background-color: #ffffff;
+            max-width: 600px;
+            margin: auto;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+            border: 2px solid #0097a7;
+        }
+
+        h2 {
+            background-color: #0097a7;
+            color: #ffffff;
+            padding: 15px;
+            margin: -30px -30px 20px -30px;
+            border-top-left-radius: 12px;
+            border-top-right-radius: 12px;
+            text-align: center;
+        }
+
+        .credential-box {
+            background-color: #f1f8f9;
+            border-left: 4px solid #00796b;
+            padding: 15px;
+            margin: 20px 0;
+        }
+
+        p {
+            font-size: 16px;
+            color: #333333;
+            margin: 10px 0;
+            line-height: 1.5;
+        }
+
+        .button {
+            display: block;
+            background-color: #00796b;
+            color: #ffffff !important;
+            padding: 12px 25px;
+            border-radius: 5px;
+            text-decoration: none;
+            text-align: center;
+            font-size: 16px;
+            font-weight: bold;
+            margin: 25px auto;
+            width: fit-content;
+        }
+
+        .footer {
+            margin-top: 30px;
+            font-size: 14px;
+            color: #555;
+            text-align: center;
+            border-top: 1px solid #ddd;
+            padding-top: 15px;
+        }
+
+        strong {
+            color: #00796b;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Account Created Successfully!</h2>
+
+        <p>Hello,</p>
+        <p>Your candidate account has been successfully opened by the <strong>RPMS (Recruitment Process Management System)</strong> team.</p>
+
+        <p>You can now log in to our portal to apply for jobs, track your application status, and manage your interviews. Use the credentials provided below:</p>
+
+        <div class="credential-box">
+            <p><strong>Login Email:</strong> {{Email}}</p>
+            <p><strong>Temporary Password:</strong> {{Password}}</p>
+        </div>
+
+        <p style="color: #d32f2f; font-size: 14px;">*For security reasons, we recommend changing your password after your first login.</p>
+
+        <a href="{{LoginUrl}}" class="button">Login to Your Dashboard</a>
+
+        <p>If you have any questions or did not expect this email, please contact our HR support team.</p>
+
+        <div class="footer">
+            &copy; {{Year}} RPMS. All rights reserved. <br>
+            Optimizing Hiring, One Candidate at a Time.
+        </div>
+    </div>
+</body>
+</html>

@@ -12,6 +12,7 @@ namespace WebApi.Services
     {
         Task SendEmailAsync(string to, string subject, string body);
         Task RegisterEmail(User user, string verifyUrl);
+        Task ActivationEmail(Candidate candidate, string url);
     }
     public class EmailService : IEmailService
     {
@@ -67,6 +68,17 @@ namespace WebApi.Services
                        .Replace("{{Year}}", DateTime.Now.Year.ToString())
                        .Replace("{{AppUrl}}", verifyUrl);
             await SendEmailAsync(user.Email, "Welcome to Our Platform", body);
+        }
+        public async Task ActivationEmail(Candidate candidate, string url)
+        {
+            var templatePath = Path.Combine(Directory.GetCurrentDirectory(), "Template", "Activation.html");
+            string body = File.ReadAllText(templatePath);
+            body = body.Replace("{{Email}}", candidate.Email)
+                .Replace("{{Password}}", candidate.PasswordHash)
+                .Replace("{{LoginUrl}}", url)
+                .Replace("{{Year}}", DateTime.Now.Year.ToString());
+            await SendEmailAsync(candidate.Email, "Credential Delivery", body);
+
         }
     }
 }

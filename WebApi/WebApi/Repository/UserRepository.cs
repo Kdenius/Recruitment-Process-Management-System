@@ -95,7 +95,7 @@ namespace WebApi.Repository
             user.RefreshTokenExpiryTime = DateTime.UtcNow.AddDays(7);
             var response = new LoginResponseDTO()
             {
-                Userid = user.UserId,
+                UserId = user.UserId,
                 Email = loginRequest.Email,
                 FirstName = user.FirstName,
                 LastName = user.LastName,
@@ -121,7 +121,7 @@ namespace WebApi.Repository
             user.RefreshToken = _jwtTokenService.GenerateRefreshToken();
             var response = new LoginResponseDTO()
             {
-                Userid = user.UserId,
+                UserId = user.UserId,
                 Email = user.Email,
                 FirstName = user.FirstName,
                 LastName = user.LastName,

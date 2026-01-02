@@ -13,7 +13,7 @@ namespace WebApi.Models
         public int SkillId { get; set; }
         public Skill Skill { get; set; }
 
-        public int YearsOfExperience { get; set; }
-        public bool IsVerified { get; set; }
+        public int? YearsOfExperience { get; set; }
+        public bool? IsVerified { get; set; }
     }
 }
