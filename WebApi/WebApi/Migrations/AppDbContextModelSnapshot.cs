@@ -328,6 +328,9 @@ namespace WebApi.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("PositionId"));
 
+                    b.Property<int>("BaseSalary")
+                        .HasColumnType("int");
+
                     b.Property<string>("CloserReason")
                         .HasColumnType("nvarchar(max)");
 
@@ -337,6 +340,13 @@ namespace WebApi.Migrations
                     b.Property<string>("Description")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Location")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("MaxSalary")
+                        .HasColumnType("int");
 
                     b.Property<int>("RecruiterId")
                         .HasColumnType("int");
@@ -353,6 +363,10 @@ namespace WebApi.Migrations
                         .IsRequired()
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
+
+                    b.Property<string>("Type")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.HasKey("PositionId");
 

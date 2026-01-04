@@ -15,7 +15,7 @@ export function Candidates() {
   const [parsedData, setParsedData] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
 
-    const handleAddCandidate = async (e) => {
+  const handleAddCandidate = async (e) => {
     e.preventDefault();
     setIsLoading(true);
 
@@ -25,15 +25,15 @@ export function Candidates() {
     if (uploadMethod === 'cv' && resumeFile) {
       // Submit file to resume parser
       const formData = new FormData();
-      if(!resumeFile)
+      if (!resumeFile)
         console.log("aaj null che")
       formData.append('file', resumeFile);
 
       try {
         const response = await fetch('http://localhost:8000/parse-resume', {
-                    method: 'POST',
-                    body: formData
-                });
+          method: 'POST',
+          body: formData
+        });
 
 
         if (response.ok) {
@@ -52,19 +52,26 @@ export function Candidates() {
       }
     }
 
-    // Now send parsed data with the resume to your backend API
     const candidateFormData = new FormData();
     candidateFormData.append('Name', candidateData.name);
     candidateFormData.append('Email', candidateData.email);
     candidateFormData.append('PhoneNumber', candidateData.phone_number);
     candidateFormData.append('Age', candidateData.age || 0);
-    candidateFormData.append('Languages',  []);
-    candidateFormData.append('CandidateSkillIds', [1,2]);
+    // candidateFormData.append('Languages',  []);
+    // candidateFormData.append('CandidateSkillIds', [1,2]);
     candidateFormData.append('ClientUrl', 'http://localhost:3000/candidate/' + candidateData.name); // Or whatever URL you want to associate
     candidateFormData.append('resume', resumeFile);
-
+    const skillIds = [1, 2];
+    skillIds.forEach(id => {
+      candidateFormData.append('CandidateSkillIds', id);
+    });
+    
+    const languages = candidateData.languages || [];
+    languages.forEach(lang => {
+      candidateFormData.append('Languages', lang);
+    });
     try {
-      const apiResponse = await fetch(import.meta.env.VITE_API_URI+'/candidate', {
+      const apiResponse = await fetch(import.meta.env.VITE_API_URI + '/candidate', {
         method: 'POST',
         body: candidateFormData,
       });
@@ -81,17 +88,17 @@ export function Candidates() {
 
     setIsLoading(false);
   };
-//   const handleAddCandidate = (e) => {
-//     e.preventDefault();
-//     setIsAddModalOpen(false);
-//     if (uploadMethod === 'manual') {
-//       showToast.success('Candidate Added', 'New candidate profile has been created successfully');
-//     } else if (uploadMethod === 'cv') {
-//       showToast.success('CV Processed', 'Candidate profile created from CV successfully');
-//     } else {
-//       showToast.success('Bulk Import Complete', 'Multiple candidates have been imported successfully');
-//     }
-//   };
+  //   const handleAddCandidate = (e) => {
+  //     e.preventDefault();
+  //     setIsAddModalOpen(false);
+  //     if (uploadMethod === 'manual') {
+  //       showToast.success('Candidate Added', 'New candidate profile has been created successfully');
+  //     } else if (uploadMethod === 'cv') {
+  //       showToast.success('CV Processed', 'Candidate profile created from CV successfully');
+  //     } else {
+  //       showToast.success('Bulk Import Complete', 'Multiple candidates have been imported successfully');
+  //     }
+  //   };
 
   //static cnadidate for style
   const candidates = [

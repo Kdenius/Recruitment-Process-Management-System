@@ -40,21 +40,17 @@ class Resume(BaseModel):
     skills: Optional[List[str]]
 
 
-# Initialize Model with Structured Output
-llm = ChatGoogleGenerativeAI(model="gemini-2.5-flash-lite") # Use flash for speed
+llm = ChatGoogleGenerativeAI(model="gemini-2.5-flash-lite")
 structured_llm = llm.with_structured_output(Resume)
 
-# Replace your @app.post section with this improved version
 @app.post("/parse-resume")
 async def parse_resume(file: UploadFile = File(...)):
     temp_path = f"temp_{file.filename}"
     try:
-        # Save uploaded file
         content = await file.read()
         with open(temp_path, "wb") as f:
             f.write(content)
 
-        # Extract Text
         loader = PyPDFLoader(temp_path)
         pages = loader.load()
         pdf_text = " ".join([p.page_content for p in pages])
@@ -62,13 +58,9 @@ async def parse_resume(file: UploadFile = File(...)):
         if not pdf_text.strip():
             raise HTTPException(status_code=400, detail="PDF is empty or unreadable")
 
-        # Use a simpler prompt for structured output
-        # Ensure your API Key is actually loaded
         if not os.getenv("GOOGLE_API_KEY"):
             return {"error": "API Key not found in environment"}
 
-        # Invoke the structured LLM
-        # IMPORTANT: Wrap the text in a HumanMessage format or a clear string
         response = structured_llm.invoke(
             f"Extract the following resume details into structured JSON: {pdf_text}"
         )
@@ -76,7 +68,7 @@ async def parse_resume(file: UploadFile = File(...)):
         return response
 
     except Exception as e:
-        print(f"ERROR OCCURRED: {e}") # This prints to your VS Code terminal
+        print(f"ERROR OCCURRED: {e}")
         return {"error": str(e)}
     
     finally:

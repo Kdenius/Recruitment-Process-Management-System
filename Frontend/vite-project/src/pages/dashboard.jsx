@@ -10,9 +10,12 @@ import {
     Target,
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
+import { CandidateDashboard } from './canDashboard';
 
 export function Dashboard() {
-    const { user } = useAuth();
+    const { user, hasRole  } = useAuth();
+    if(hasRole("Candidate"))
+        return <CandidateDashboard/>;
 
     const stats = [
         {

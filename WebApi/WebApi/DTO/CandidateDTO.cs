@@ -13,7 +13,7 @@ namespace WebApi.DTO
         public string PhoneNumber { get; set; }
         public int Age { get; set; }
         //education also 
-        List<string>? Languages { get; set; }
+        public List<string>? Languages { get; set; }
         public List<int>? CandidateSkillIds { get; set; }
 
         public string ClientUrl { get; set; }

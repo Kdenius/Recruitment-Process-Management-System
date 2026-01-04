@@ -18,6 +18,10 @@ namespace WebApi.Models
         [Required]
         [StringLength(20)]
         public string Status { get; set; } // Open,On Hold, Closed
+        public string Location { get; set; } // Remote ke offline 
+        public string Type { get; set; } //ful time, part time, contract
+        public int BaseSalary { get; set; }
+        public int MaxSalary { get; set; }
 
         public string? CloserReason { get; set; }
 

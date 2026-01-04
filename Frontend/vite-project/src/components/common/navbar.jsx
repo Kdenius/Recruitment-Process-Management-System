@@ -22,7 +22,7 @@ export function Navbar() {
                 <span className="text-white font-bold text-xl">R</span>
               </div>
               <span className="text-xl font-bold text-gray-800">
-                RecruitPro
+                Recruitment Process Managment System
               </span>
             </Link>
           </div>

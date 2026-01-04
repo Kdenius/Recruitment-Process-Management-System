@@ -12,8 +12,8 @@ using WebApi.Models;
 namespace WebApi.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20260102034644_CandidateChanged")]
-    partial class CandidateChanged
+    [Migration("20260104171737_InitiDB")]
+    partial class InitiDB
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -331,6 +331,9 @@ namespace WebApi.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("PositionId"));
 
+                    b.Property<int>("BaseSalary")
+                        .HasColumnType("int");
+
                     b.Property<string>("CloserReason")
                         .HasColumnType("nvarchar(max)");
 
@@ -340,6 +343,13 @@ namespace WebApi.Migrations
                     b.Property<string>("Description")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Location")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("MaxSalary")
+                        .HasColumnType("int");
 
                     b.Property<int>("RecruiterId")
                         .HasColumnType("int");
@@ -356,6 +366,10 @@ namespace WebApi.Migrations
                         .IsRequired()
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
+
+                    b.Property<string>("Type")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.HasKey("PositionId");
 

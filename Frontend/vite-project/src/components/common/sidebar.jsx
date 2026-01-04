@@ -35,7 +35,7 @@ const navItems = [
     name: 'Interviews',
     path: '/interviews',
     icon: Calendar,
-    roles: ['Admin', 'Recruiter', 'hr', 'interviewer', 'viewer'],
+    roles: ['Admin', 'Recruiter', 'hr', 'interviewer', 'viewer', 'Candidate'],
   },
   {
     name: 'Documents',

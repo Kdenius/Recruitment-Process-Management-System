@@ -50,6 +50,7 @@ namespace WebApi.Repository
                 LastName = userDTO.LastName,
                 Email = userDTO.Email,
                 Role = role,
+                CreatedAt = DateTime.UtcNow,
                 VerifyToken = TokenGenerator.GenerateRandomizeToken(),
             };
             usr.PasswordHash = _passwordHasher.HashPassword(usr, userDTO.Password);

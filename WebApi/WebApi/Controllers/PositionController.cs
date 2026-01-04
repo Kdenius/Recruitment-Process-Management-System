@@ -14,10 +14,11 @@ namespace WebApi.Controllers
         private readonly ISkillRepository _skillRepository;
         private readonly IUserRepository _userRepository;
 
-        public PositionController(IPositionRepository positionRepository, ISkillRepository skillRepository)
+        public PositionController(IPositionRepository positionRepository, ISkillRepository skillRepository, IUserRepository userRepository)
         {
             _positionRepository = positionRepository;
             _skillRepository = skillRepository;
+            _userRepository = userRepository;
         }
 
         [HttpPost]
@@ -26,12 +27,18 @@ namespace WebApi.Controllers
             if (positionDTO == null)
                 return BadRequest("Position data is invalid.");
             var skills = await _skillRepository.GetSkillsByIdsAsync(positionDTO.SkillIds);
-            var position = new Position
+
+            var position = new Position()
             {
                 Title = positionDTO.Title,
                 Description = positionDTO.Description,
                 Status = positionDTO.Status,
                 Rounds = positionDTO.Rounds,
+                Type = positionDTO.Type,
+                BaseSalary = positionDTO.BaseSalary,
+                MaxSalary = positionDTO.MaxSalary,
+                Location = positionDTO.Location,
+                CreatedAt = DateTime.UtcNow,
                 Recruiter = _userRepository.GetById(positionDTO.RecruiterId),
                 PositionSkills = skills.Select(s => new PositionSkill
                 {

@@ -10,6 +10,10 @@ namespace WebApi.DTO
         public string Description { get; set; }
         public string Status { get; set; } // Open,On Hold, Closed
         public int Rounds { get; set; }
+        public string Type { get; set; }
+        public int BaseSalary { get; set; }
+        public int MaxSalary { get; set; }
+        public string Location { get; set; }    
 
         public int RecruiterId { get; set; }
 

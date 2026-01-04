@@ -37,8 +37,8 @@ export function AuthProvider({ children }) {
         autoLogin();
     }, []);
 
-    const login = async (email, password) => {
-        const ret = await fetch(API_URI +'/auth/login',{
+    const login = async (email, password, isCandidate=false) => {
+        const ret = await fetch(isCandidate ? `${API_URI}/auth/candidate-login` :`${API_URI}/auth/login`,{
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',

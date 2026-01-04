@@ -16,6 +16,10 @@ export function Jobs() {
         title: '',
         description: '',
         status: 'Open',
+        location: '',
+        type: 'Full Time',
+        baseSalary: 0,
+        maxSalary: 0,
         rounds: 1,
         skillIds: []
     });
@@ -75,12 +79,8 @@ export function Jobs() {
         e.preventDefault();
 
         const positionData = {
-            title: formData.title,
-            description: formData.description,
-            status: formData.status,
-            rounds: formData.rounds,
-            recruiterId: user.userID,
-            skillIds: formData.skillIds
+            ...formData,
+            recruiterId: user.userId
         };
         console.log(positionData)
         console.log(user)
@@ -242,7 +242,7 @@ export function Jobs() {
                         onChange={(e) => setFormData({ ...formData, title: e.target.value })}
                         required
                     />
-                    <div className="grid grid-cols-2 gap-4">
+                    <div className="grid grid-cols-4 gap-4">
                         {/* Status */}
                         <Select
                             label="Status"
@@ -254,15 +254,54 @@ export function Jobs() {
                                 { value: 'Closed', label: 'Closed' },
                             ]}
                         />
-                        {/* Rounds */}
+                        <Select
+                            label="Type"
+                            value={formData.type}
+                            onChange={(e) => setFormData({ ...formData, type: e.target.value })}
+                            options={[
+                                { value: 'Full Time', label: 'Full Time' },
+                                { value: 'Part Time', label: 'Part Time' },
+                                { value: 'Contract', label: 'Contract' },
+                            ]}
+                        />
+
                         <Input
                             type="number"
-                            label="Interview Rounds"
+                            label="Base Salary"
                             min="1"
-                            value={formData.rounds}
-                            onChange={(e) => setFormData({ ...formData, rounds: parseInt(e.target.value) })}
+                            value={formData.baseSalary}
+                            onChange={(e) => setFormData({ ...formData, baseSalary: parseInt(e.target.value) })}
                             required
                         />
+                        <Input
+                            type="number"
+                            label="Max Salary"
+                            min="1"
+                            value={formData.maxSalary}
+                            onChange={(e) => setFormData({ ...formData, maxSalary: parseInt(e.target.value) })}
+                            required
+                        />
+
+                    </div>
+                    <div className="grid grid-cols-4 gap-4">
+                        <div className="col-span-3">
+                            <Input
+                                label="Location"
+                                placeholder="e.g. Remote, Ahmedabad"
+                                value={formData.location}
+                                onChange={(e) => setFormData({ ...formData, location: e.target.value })}
+                                required />
+                        </div>
+                        <div className="col-span-1">
+                            <Input
+                                type="number"
+                                label="Interview Rounds"
+                                min="1"
+                                value={formData.rounds}
+                                onChange={(e) => setFormData({ ...formData, rounds: parseInt(e.target.value) })}
+                                required
+                            />
+                        </div>
                     </div>
 
                     <div>

@@ -12,6 +12,8 @@ import { AdminLogin } from './pages/adminLogin'
 import { Users } from './pages/users'
 import { Jobs } from './pages/job'
 import { Candidates } from './pages/candidate'
+import { CandidateLogin } from './pages/candidateLogin'
+import { CandidateDashboard } from './pages/canDashboard'
 
 function App() {
   return (
@@ -23,7 +25,8 @@ function App() {
         <Route path="login" element={<Login/>}/>
         <Route path="signup" element={<Signup/>}/>
         <Route path="admin-login" element={<AdminLogin/>}/>
-
+        <Route path="candidate-login" element={<CandidateLogin/>}/>
+<Route path="/cdash" element={<Layout><CandidateDashboard/></Layout>} />
         <Route path="dashboard" element={<ProtectedRoute><Layout><Dashboard/></Layout></ProtectedRoute>}/>
         <Route path="users" element={<ProtectedRoute allowedRoles={'Admin'}><Layout><Users/></Layout></ProtectedRoute>}/>
         <Route path="candidates" element={<ProtectedRoute><Layout><Candidates/></Layout></ProtectedRoute>}/>

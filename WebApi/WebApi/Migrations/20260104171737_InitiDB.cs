@@ -6,72 +6,21 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace WebApi.Migrations
 {
     /// <inheritdoc />
-    public partial class testing : Migration
+    public partial class InitiDB : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.RenameColumn(
-                name: "Password",
-                table: "Users",
-                newName: "PasswordHash");
-
-            migrationBuilder.RenameColumn(
-                name: "Id",
-                table: "Users",
-                newName: "UserId");
-
-            migrationBuilder.AlterColumn<string>(
-                name: "LastName",
-                table: "Users",
-                type: "nvarchar(50)",
-                maxLength: 50,
-                nullable: false,
-                oldClrType: typeof(string),
-                oldType: "nvarchar(max)");
-
-            migrationBuilder.AlterColumn<string>(
-                name: "FirstName",
-                table: "Users",
-                type: "nvarchar(50)",
-                maxLength: 50,
-                nullable: false,
-                oldClrType: typeof(string),
-                oldType: "nvarchar(max)");
-
-            migrationBuilder.AlterColumn<string>(
-                name: "Email",
-                table: "Users",
-                type: "nvarchar(100)",
-                maxLength: 100,
-                nullable: false,
-                oldClrType: typeof(string),
-                oldType: "nvarchar(max)");
-
-            migrationBuilder.AddColumn<DateTime>(
-                name: "CreatedAt",
-                table: "Users",
-                type: "datetime2",
-                nullable: false,
-                defaultValue: new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified));
-
-            migrationBuilder.AddColumn<int>(
-                name: "RoleId",
-                table: "Users",
-                type: "int",
-                nullable: false,
-                defaultValue: 0);
-
             migrationBuilder.CreateTable(
                 name: "Candidates",
                 columns: table => new
                 {
                     CandidateId = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    FirstName = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
-                    LastName = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
+                    Name = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
                     Email = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
                     PhoneNumber = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false),
+                    PasswordHash = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     CurrentStatus = table.Column<string>(type: "nvarchar(30)", maxLength: 30, nullable: false),
                     JoiningDate = table.Column<DateTime>(type: "datetime2", nullable: true),
                     CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
@@ -93,31 +42,6 @@ namespace WebApi.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_DocumentTypes", x => x.DocTypeId);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "Position",
-                columns: table => new
-                {
-                    PositionId = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    Title = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
-                    Description = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Status = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false),
-                    CloserReason = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Rounds = table.Column<int>(type: "int", nullable: false),
-                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    RecruiterId = table.Column<int>(type: "int", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Position", x => x.PositionId);
-                    table.ForeignKey(
-                        name: "FK_Position_Users_RecruiterId",
-                        column: x => x.RecruiterId,
-                        principalTable: "Users",
-                        principalColumn: "UserId",
-                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
@@ -160,6 +84,90 @@ namespace WebApi.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "Users",
+                columns: table => new
+                {
+                    UserId = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    FirstName = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
+                    LastName = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
+                    Email = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
+                    PasswordHash = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    VerifyToken = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    IsVerified = table.Column<bool>(type: "bit", nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    RefreshToken = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    RefreshTokenExpiryTime = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    RoleId = table.Column<int>(type: "int", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Users", x => x.UserId);
+                    table.ForeignKey(
+                        name: "FK_Users_Roles_RoleId",
+                        column: x => x.RoleId,
+                        principalTable: "Roles",
+                        principalColumn: "RoleId",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "CandidateSkills",
+                columns: table => new
+                {
+                    CandidateId = table.Column<int>(type: "int", nullable: false),
+                    SkillId = table.Column<int>(type: "int", nullable: false),
+                    CandidateSkillId = table.Column<int>(type: "int", nullable: false),
+                    YearsOfExperience = table.Column<int>(type: "int", nullable: true),
+                    IsVerified = table.Column<bool>(type: "bit", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_CandidateSkills", x => new { x.CandidateId, x.SkillId });
+                    table.ForeignKey(
+                        name: "FK_CandidateSkills_Candidates_CandidateId",
+                        column: x => x.CandidateId,
+                        principalTable: "Candidates",
+                        principalColumn: "CandidateId",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_CandidateSkills_Skills_SkillId",
+                        column: x => x.SkillId,
+                        principalTable: "Skills",
+                        principalColumn: "SkillId",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Positions",
+                columns: table => new
+                {
+                    PositionId = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Title = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
+                    Description = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Status = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false),
+                    Location = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Type = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    BaseSalary = table.Column<int>(type: "int", nullable: false),
+                    MaxSalary = table.Column<int>(type: "int", nullable: false),
+                    CloserReason = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Rounds = table.Column<int>(type: "int", nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    RecruiterId = table.Column<int>(type: "int", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Positions", x => x.PositionId);
+                    table.ForeignKey(
+                        name: "FK_Positions_Users_RecruiterId",
+                        column: x => x.RecruiterId,
+                        principalTable: "Users",
+                        principalColumn: "UserId",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "CandidateApplications",
                 columns: table => new
                 {
@@ -181,9 +189,9 @@ namespace WebApi.Migrations
                         principalColumn: "CandidateId",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_CandidateApplications_Position_PositionId",
+                        name: "FK_CandidateApplications_Positions_PositionId",
                         column: x => x.PositionId,
-                        principalTable: "Position",
+                        principalTable: "Positions",
                         principalColumn: "PositionId",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
@@ -191,33 +199,6 @@ namespace WebApi.Migrations
                         column: x => x.RoundTypeId,
                         principalTable: "RoundType",
                         principalColumn: "RoundTypeId");
-                });
-
-            migrationBuilder.CreateTable(
-                name: "CandidateSkills",
-                columns: table => new
-                {
-                    CandidateId = table.Column<int>(type: "int", nullable: false),
-                    SkillId = table.Column<int>(type: "int", nullable: false),
-                    CandidateSkillId = table.Column<int>(type: "int", nullable: false),
-                    YearsOfExperience = table.Column<int>(type: "int", nullable: false),
-                    IsVerified = table.Column<bool>(type: "bit", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_CandidateSkills", x => new { x.CandidateId, x.SkillId });
-                    table.ForeignKey(
-                        name: "FK_CandidateSkills_Candidates_CandidateId",
-                        column: x => x.CandidateId,
-                        principalTable: "Candidates",
-                        principalColumn: "CandidateId",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_CandidateSkills_Skills_SkillId",
-                        column: x => x.SkillId,
-                        principalTable: "Skills",
-                        principalColumn: "SkillId",
-                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
@@ -233,9 +214,9 @@ namespace WebApi.Migrations
                 {
                     table.PrimaryKey("PK_PositionSkills", x => new { x.PositionId, x.SkillId });
                     table.ForeignKey(
-                        name: "FK_PositionSkills_Position_PositionId",
+                        name: "FK_PositionSkills_Positions_PositionId",
                         column: x => x.PositionId,
-                        principalTable: "Position",
+                        principalTable: "Positions",
                         principalColumn: "PositionId",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
@@ -394,11 +375,6 @@ namespace WebApi.Migrations
                 });
 
             migrationBuilder.CreateIndex(
-                name: "IX_Users_RoleId",
-                table: "Users",
-                column: "RoleId");
-
-            migrationBuilder.CreateIndex(
                 name: "IX_CandidateApplications_CandidateId",
                 table: "CandidateApplications",
                 column: "CandidateId");
@@ -464,8 +440,8 @@ namespace WebApi.Migrations
                 column: "SentByUserId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Position_RecruiterId",
-                table: "Position",
+                name: "IX_Positions_RecruiterId",
+                table: "Positions",
                 column: "RecruiterId");
 
             migrationBuilder.CreateIndex(
@@ -473,22 +449,15 @@ namespace WebApi.Migrations
                 table: "PositionSkills",
                 column: "SkillId");
 
-            migrationBuilder.AddForeignKey(
-                name: "FK_Users_Roles_RoleId",
+            migrationBuilder.CreateIndex(
+                name: "IX_Users_RoleId",
                 table: "Users",
-                column: "RoleId",
-                principalTable: "Roles",
-                principalColumn: "RoleId",
-                onDelete: ReferentialAction.Cascade);
+                column: "RoleId");
         }
 
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.DropForeignKey(
-                name: "FK_Users_Roles_RoleId",
-                table: "Users");
-
             migrationBuilder.DropTable(
                 name: "CandidateDocuments");
 
@@ -503,9 +472,6 @@ namespace WebApi.Migrations
 
             migrationBuilder.DropTable(
                 name: "PositionSkills");
-
-            migrationBuilder.DropTable(
-                name: "Roles");
 
             migrationBuilder.DropTable(
                 name: "DocumentTypes");
@@ -526,59 +492,16 @@ namespace WebApi.Migrations
                 name: "Candidates");
 
             migrationBuilder.DropTable(
-                name: "Position");
+                name: "Positions");
 
             migrationBuilder.DropTable(
                 name: "RoundType");
 
-            migrationBuilder.DropIndex(
-                name: "IX_Users_RoleId",
-                table: "Users");
+            migrationBuilder.DropTable(
+                name: "Users");
 
-            migrationBuilder.DropColumn(
-                name: "CreatedAt",
-                table: "Users");
-
-            migrationBuilder.DropColumn(
-                name: "RoleId",
-                table: "Users");
-
-            migrationBuilder.RenameColumn(
-                name: "PasswordHash",
-                table: "Users",
-                newName: "Password");
-
-            migrationBuilder.RenameColumn(
-                name: "UserId",
-                table: "Users",
-                newName: "Id");
-
-            migrationBuilder.AlterColumn<string>(
-                name: "LastName",
-                table: "Users",
-                type: "nvarchar(max)",
-                nullable: false,
-                oldClrType: typeof(string),
-                oldType: "nvarchar(50)",
-                oldMaxLength: 50);
-
-            migrationBuilder.AlterColumn<string>(
-                name: "FirstName",
-                table: "Users",
-                type: "nvarchar(max)",
-                nullable: false,
-                oldClrType: typeof(string),
-                oldType: "nvarchar(50)",
-                oldMaxLength: 50);
-
-            migrationBuilder.AlterColumn<string>(
-                name: "Email",
-                table: "Users",
-                type: "nvarchar(max)",
-                nullable: false,
-                oldClrType: typeof(string),
-                oldType: "nvarchar(100)",
-                oldMaxLength: 100);
+            migrationBuilder.DropTable(
+                name: "Roles");
         }
     }
 }

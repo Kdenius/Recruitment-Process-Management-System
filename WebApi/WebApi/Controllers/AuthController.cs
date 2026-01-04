@@ -15,11 +15,13 @@ namespace WebApi.Controllers
     {
         private readonly IUserRepository _userRepository;
         private readonly IEmailService _emailService;
+        private readonly ICandidateRepository _candidateRepository;
 
-        public AuthController(IUserRepository userRepository, IEmailService emailService)
+        public AuthController(IUserRepository userRepository, IEmailService emailService, ICandidateRepository candidateRepository)
         {
             _userRepository = userRepository;
             _emailService = emailService;
+            _candidateRepository = candidateRepository;
         }
 
         [HttpPost("register")]
@@ -79,6 +81,14 @@ namespace WebApi.Controllers
         {
             var ret = _userRepository.VerifyAdmin(password);
             if(!ret.Success)
+                return Unauthorized(ret);
+            return Ok(ret);
+        }
+        [HttpPost("candidate-login")]
+        public async Task<IActionResult> CandidateLogin([FromBody] LoginRequest loginRequest)
+        {
+            var ret = await _candidateRepository.Login(loginRequest);
+            if (!ret.Success)
                 return Unauthorized(ret);
             return Ok(ret);
         }

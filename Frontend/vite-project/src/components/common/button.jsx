@@ -18,7 +18,7 @@ export function Button({
     danger:
       'bg-red-500 text-white hover:bg-red-600 focus:ring-red-500 shadow-md hover:shadow-lg',
     success:
-      'bg-green-500 text-white hover:bg-green-600 focus:ring-green-500 shadow-md',
+      'bg-blue-500 text-white hover:bg-blue-600 focus:ring-blue-500 shadow-md',
   };
 
   const sizeClasses = {
