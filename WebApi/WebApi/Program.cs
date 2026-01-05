@@ -1,8 +1,10 @@
+using Hangfire;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using System.Text;
+using WebApi.ApiClient;
 using WebApi.Models;
 using WebApi.Repository;
 using WebApi.Services;
@@ -21,6 +23,9 @@ builder.Services.AddScoped<IPositionRepository, PositionRepository>();
 builder.Services.AddScoped<ICandidateRepository, CandidateRepository>();
 builder.Services.AddSingleton<IFileUploadService, FileUploadService>();
 builder.Services.AddScoped<ICandidateApplicationRepository, CandidateApplicationRepository>();
+builder.Services.AddScoped<IBatchRepository, BatchRepository>();
+builder.Services.AddHttpClient<FastApiClient>();
+builder.Services.AddScoped<ResumeJobService>();
 builder.Services.AddLogging();
 
 builder.Services.AddCors(options =>
@@ -88,6 +93,11 @@ builder.Services.AddSwaggerGen(opt =>
 
 builder.Services.AddDbContext<AppDbContext>(
     o => o.UseSqlServer(builder.Configuration.GetConnectionString("ProjectDB")));
+builder.Services.AddHangfire(config =>
+{
+    config.UseSqlServerStorage(builder.Configuration.GetConnectionString("ProjectDB"));
+});
+builder.Services.AddHangfireServer();
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -99,7 +109,7 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 app.UseCors("AllowReactApp");
-
+app.UseHangfireDashboard("/hangfire");
 app.UseAuthentication();
 app.UseAuthorization();
 

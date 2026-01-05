@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Hangfire;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using WebApi.DTO;
 using WebApi.Models;
@@ -18,8 +19,9 @@ namespace WebApi.Controllers
         private readonly ISkillRepository _skillRepository;
         private readonly ICandidateApplicationRepository _candidateApplicationRepository;
         private readonly IPositionRepository _positionRepository;
+        private readonly IBatchRepository _batchRepository;
 
-        public CandidateController(ICandidateRepository candidateRepository, IEmailService emailService, IRoleRepository roleRepository, IFileUploadService fileUploadService, ISkillRepository skillRepository, ICandidateApplicationRepository candidateApplicationRepository, IPositionRepository positionRepository)
+        public CandidateController(ICandidateRepository candidateRepository, IEmailService emailService, IRoleRepository roleRepository, IFileUploadService fileUploadService, ISkillRepository skillRepository, ICandidateApplicationRepository candidateApplicationRepository, IPositionRepository positionRepository, IBatchRepository batchRepository)
         {
             _candidateRepository = candidateRepository;
             _emailService = emailService;
@@ -28,6 +30,7 @@ namespace WebApi.Controllers
             _skillRepository = skillRepository;
             _candidateApplicationRepository = candidateApplicationRepository;
             _positionRepository = positionRepository;
+            _batchRepository = batchRepository;
         }
 
         [HttpPost]
@@ -114,6 +117,35 @@ namespace WebApi.Controllers
             }
 
             return Ok(candidateApplication);
+        }
+
+        [HttpPost("bulk-upload")]
+        public async Task<IActionResult> BulkUpload (List<IFormFile> files)
+        {
+            var batch = new BulkUploadBatch()
+            {
+                TotalFiles = files.Count,
+                CreatedAt = DateTime.Now,
+            };
+            await _batchRepository.CreateBatch(batch);
+
+            foreach (var file in files)
+            {
+                var path = await _fileUploadService.UploadFileAsync(file);
+                var job = new ResumeJob()
+                {
+                    BatchId = batch.Id,
+                    FilePath = path,
+                    Status = "Pending"
+                };
+                await _batchRepository.AddJob(job);
+
+                BackgroundJob.Enqueue<ResumeJobService>(x => x.ProcessResume(job.Id));
+            }
+
+            return Ok(new { batchId = batch.Id });
+
+
         }
     }
 }

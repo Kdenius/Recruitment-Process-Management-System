@@ -17,7 +17,7 @@ export function Jobs() {
         description: '',
         status: 'Open',
         location: '',
-        type: 'Full Time',
+        type: 'Full Time    ',
         baseSalary: 0,
         maxSalary: 0,
         rounds: 1,

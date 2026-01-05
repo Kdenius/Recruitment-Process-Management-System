@@ -8,6 +8,7 @@ namespace WebApi.Repository
         Task<Skill> CreateSkillAsync(string skill);
         Task<Skill> GetSkillByIdAsync(int skillId);
         Task<IEnumerable<Skill>> GetSkillsByIdsAsync(List<int> skillIds);
+        Task<IEnumerable<Skill>> GetSkillsByNamesAsync(List<string> skillNames);
         Task<IEnumerable<Skill>> GetAllSkillsAsync();
     }
     public class SkillRepository : ISkillRepository
@@ -36,6 +37,11 @@ namespace WebApi.Repository
         public async Task<IEnumerable<Skill>> GetSkillsByIdsAsync(List<int> skillIds)
         {
             return await _con.Skills.Where(s => skillIds.Contains(s.SkillId)).ToListAsync();
+        }
+
+        public async Task<IEnumerable<Skill>> GetSkillsByNamesAsync(List<string> skillNames)
+        {
+            return await _con.Skills.Where(s => skillNames.Contains(s.SkillName)).ToListAsync();
         }
 
         public async Task<IEnumerable<Skill>> GetAllSkillsAsync()

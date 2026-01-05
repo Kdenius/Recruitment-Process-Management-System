@@ -75,5 +75,7 @@ namespace WebApi.Models
         public DbSet<DocumentType> DocumentTypes { get; set; }
         public DbSet<CandidateDocument> CandidateDocuments { get; set; }
         public DbSet<OfferLetter> OfferLetters { get; set; }
+        public DbSet<BulkUploadBatch> Batches { get; set; }
+        public DbSet<ResumeJob> Jobs { get; set; }
     }
 }
