@@ -54,6 +54,7 @@ namespace WebApi.Repository
                     Type = p.Type,
                     BaseSalary = p.BaseSalary,
                     MaxSalary = p.MaxSalary,
+                    Applicants = p.CandidateApplications.Count(),
                     PositionSkills = p.PositionSkills.Select(ps => new 
                     {
                         RoleId = ps.SkillId, // SkillId is the RoleId

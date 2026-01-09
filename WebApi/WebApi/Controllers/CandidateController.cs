@@ -94,17 +94,17 @@ namespace WebApi.Controllers
                 return BadRequest("Invalid application data.");
             }
 
+            var can = await _candidateRepository.GetById(jobApplicationDTO.CandidateId);
+            var job = await _positionRepository.GetPositionByIdAsync(jobApplicationDTO.PositionId);
             var candidateApplication = new CandidateApplication
             {
-                CandidateId = jobApplicationDTO.CandidateId,
-                PositionId = jobApplicationDTO.PositionId,
+                Candidate = can,
+                Position = job,
                 IsOnHold = false,
                 OnHoldReason = string.Empty
             };
 
             await _candidateApplicationRepository.CreateApplication(candidateApplication);
-            var can = await _candidateRepository.GetById(candidateApplication.CandidateId);
-            var job = await _positionRepository.GetPositionByIdAsync(candidateApplication.PositionId);
             try
             {
                 await _emailService.ApplicationAknow(can.Name, can.Email, job.Title, DateTime.Now.ToShortDateString());
@@ -146,6 +146,16 @@ namespace WebApi.Controllers
             return Ok(new { batchId = batch.Id });
 
 
+        }
+        [HttpGet("{candidateId}/applications")]
+        public async Task<IActionResult> GetCandidateApplications([FromRoute]int candidateId)
+        {
+            var applications = await _candidateApplicationRepository.GetApplicationsByCandidateIdAsync(candidateId);
+
+            if (applications == null || !applications.Any())
+                return NotFound(new { message = "No applications found for this candidate." });
+
+            return Ok(applications);
         }
     }
 }

@@ -17,12 +17,13 @@ export function Jobs() {
         description: '',
         status: 'Open',
         location: '',
-        type: 'Full Time    ',
+        type: 'Full Time',
         baseSalary: 0,
         maxSalary: 0,
         rounds: 1,
         skillIds: []
     });
+    const [jobs, setJobs] = useState([]);
     const { user } = useAuth()
     const [availableSkills, setAvailableSkills] = useState([]);
     const [selectedSkills, setSelectedSkills] = useState([]);
@@ -58,10 +59,22 @@ export function Jobs() {
                     }
                 })
                 const res = await ret.json();
-                if (ret.ok)
+                if (!ret.ok)
                     new Error(res.message);
                 console.log(res)
                 setAvailableSkills(res);
+
+                const ret2 = await fetch(import.meta.env.VITE_API_URI + '/position',{
+                    headers: {
+                        'Content-Type': 'application/json',
+                        // 'Authorization': `Bearer ${user.jwtToken}`
+                    }
+                })
+                const res2 = await ret2.json();
+                if(!ret2.ok)
+                    new Error(res2.message);
+                console.log(res2)
+                setJobs(res2)
             } catch (e) {
                 console.error(error);
                 showToast.error('Error', 'Something went wrong during fetch skills');
@@ -110,19 +123,19 @@ export function Jobs() {
 
     }
     //statik data for tamplet
-    const jobs = [
-        { id: '1', title: 'Senior Full Stack Developer', department: 'Engineering', location: 'Remote', status: 'open', applicants: 45, createdDate: '2024-01-15' },
-        { id: '2', title: 'UI/UX Designer', department: 'Design', location: 'New York', status: 'open', applicants: 32, createdDate: '2024-01-18' },
-        { id: '3', title: 'DevOps Engineer', department: 'Engineering', location: 'San Francisco', status: 'hold', applicants: 28, createdDate: '2024-01-10' },
-        { id: '4', title: 'Product Manager', department: 'Product', location: 'Boston', status: 'open', applicants: 56, createdDate: '2024-01-20' },
-        { id: '5', title: 'Data Scientist', department: 'Data', location: 'Remote', status: 'closed', applicants: 41, createdDate: '2024-01-05' },
-    ];
+    // const jobs = [
+    //     { id: '1', title: 'Senior Full Stack Developer', department: 'Engineering', location: 'Remote', status: 'open', applicants: 45, createdDate: '2024-01-15' },
+    //     { id: '2', title: 'UI/UX Designer', department: 'Design', location: 'New York', status: 'open', applicants: 32, createdDate: '2024-01-18' },
+    //     { id: '3', title: 'DevOps Engineer', department: 'Engineering', location: 'San Francisco', status: 'hold', applicants: 28, createdDate: '2024-01-10' },
+    //     { id: '4', title: 'Product Manager', department: 'Product', location: 'Boston', status: 'open', applicants: 56, createdDate: '2024-01-20' },
+    //     { id: '5', title: 'Data Scientist', department: 'Data', location: 'Remote', status: 'closed', applicants: 41, createdDate: '2024-01-05' },
+    // ];
 
     const getStatusBadge = (status) => {
         const styles = {
-            open: 'bg-green-100 text-green-700 border-green-200',
-            hold: 'bg-yellow-100 text-yellow-700 border-yellow-200',
-            closed: 'bg-gray-100 text-gray-700 border-gray-200',
+            Open: 'bg-green-100 text-green-700 border-green-200',
+            Hold: 'bg-yellow-100 text-yellow-700 border-yellow-200',
+            Closed: 'bg-gray-100 text-gray-700 border-gray-200',
         };
         const icons = {
             open: <CheckCircle className="w-3 h-3" />,
@@ -192,25 +205,25 @@ export function Jobs() {
                         </thead>
                         <tbody className="divide-y divide-gray-200">
                             {jobs.map((job) => (
-                                <tr key={job.id} className="hover:bg-gray-50 transition-colors">
+                                <tr key={job.positionId} className="hover:bg-gray-50 transition-colors">
                                     <td className="px-6 py-4">
-                                        <div className="flex items-center space-x-3">
+                                        <div className="flex items-center text-center space-x-3">
                                             <div className="w-10 h-10 bg-gradient-to-br from-green-400 to-green-500 rounded-lg flex items-center justify-center">
                                                 <Briefcase className="w-5 h-5 text-white" />
                                             </div>
                                             <div>
                                                 <p className="font-semibold text-gray-800">{job.title}</p>
-                                                <p className="text-sm text-gray-500">ID: {job.id}</p>
+                                                <p className="text-sm text-gray-500">{job.recruiterName}</p>
                                             </div>
                                         </div>
                                     </td>
-                                    <td className="px-6 py-4 text-gray-700">{job.department}</td>
-                                    <td className="px-6 py-4 text-gray-700">{job.location}</td>
-                                    <td className="px-6 py-4">{getStatusBadge(job.status)}</td>
-                                    <td className="px-6 py-4">
-                                        <span className="font-semibold text-gray-800">{job.applicants}</span>
+                                    <td className="text-center  py-4 text-gray-700">{job.type}</td>
+                                    <td className="text-center  py-4 text-gray-700">{job.location}</td>
+                                    <td className="text-center  py-4">{getStatusBadge(job.status)}</td>
+                                    <td className="text-center  py-4">
+                                        <span className="font-semibold text-gray-800">{job.applicants   }</span>
                                     </td>
-                                    <td className="px-6 py-4 text-gray-600 text-sm">{job.createdDate}</td>
+                                    <td className="text-center py-4 text-gray-600 text-sm">{new Date(job.createdAt).toLocaleDateString('en-GB')}</td>
                                     <td className="px-6 py-4">
                                         <div className="flex items-center space-x-2">
                                             <button className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors">

@@ -10,12 +10,14 @@ import {
   X,
   BookOpen,
   Award,
+  IndianRupee,
 } from 'lucide-react';
 import { Modal } from '../components/common/modal';
 import { Input } from '../components/common/input';
 import { Select } from '../components/common/select';
 import { Card } from '../components/common/Card';
 import { useAuth } from '../context/AuthContext';
+import { showToast } from '../components/common/toast';
 
 
 
@@ -33,77 +35,7 @@ const SAMPLE_JOBS = [
     description:
       'We are looking for an experienced Frontend Developer to join our growing team. You will work on building scalable web applications using modern technologies.',
     posted: '2 days ago',
-  },
-  {
-    id: '2',
-    title: 'Full Stack Developer',
-    company: 'Digital Solutions',
-    location: 'New York, NY',
-    type: 'Full-time',
-    salary: '$100k - $140k',
-    applicants: 18,
-    requiredSkills: ['Node.js', 'React', 'PostgreSQL', 'Docker'],
-    preferredSkills: ['AWS', 'Kubernetes', 'Redis'],
-    description:
-      'Join our team to build full-stack applications. We work with modern tech stack and value clean code and collaboration.',
-    posted: '5 days ago',
-  },
-  {
-    id: '3',
-    title: 'UI/UX Designer',
-    company: 'Creative Agency',
-    location: 'Los Angeles, CA',
-    type: 'Contract',
-    salary: '$80k - $110k',
-    applicants: 12,
-    requiredSkills: ['Figma', 'UI Design', 'Prototyping', 'User Research'],
-    preferredSkills: ['Animation', 'CSS', 'Accessibility'],
-    description:
-      'Design beautiful and user-friendly interfaces for web and mobile applications. Work closely with product and engineering teams.',
-    posted: '1 week ago',
-  },
-  {
-    id: '4',
-    title: 'DevOps Engineer',
-    company: 'Cloud Systems',
-    location: 'Remote',
-    type: 'Full-time',
-    salary: '$110k - $150k',
-    applicants: 8,
-    requiredSkills: ['Kubernetes', 'Docker', 'AWS', 'Linux'],
-    preferredSkills: ['Terraform', 'CI/CD', 'Monitoring'],
-    description:
-      'Build and maintain our cloud infrastructure. We use cutting-edge DevOps practices and tools.',
-    posted: '3 days ago',
-  },
-  {
-    id: '5',
-    title: 'Data Scientist',
-    company: 'Analytics Pro',
-    location: 'Boston, MA',
-    type: 'Full-time',
-    salary: '$130k - $170k',
-    applicants: 15,
-    requiredSkills: ['Python', 'Machine Learning', 'SQL', 'Data Analysis'],
-    preferredSkills: ['TensorFlow', 'PyTorch', 'Spark'],
-    description:
-      'Work on challenging data science problems. We have large datasets and cutting-edge ML tools.',
-    posted: '4 days ago',
-  },
-  {
-    id: '6',
-    title: 'Backend Engineer',
-    company: 'Enterprise Solutions',
-    location: 'Chicago, IL',
-    type: 'Full-time',
-    salary: '$105k - $145k',
-    applicants: 20,
-    requiredSkills: ['Java', 'Spring Boot', 'Microservices', 'REST APIs'],
-    preferredSkills: ['Kafka', 'MongoDB', 'AWS'],
-    description:
-      'Build robust backend systems. We focus on scalability, performance, and code quality.',
-    posted: '1 day ago',
-  },
+  }
 ];
 
 export function CandidateDashboard() {
@@ -117,28 +49,42 @@ export function CandidateDashboard() {
   const [jobs, setJobs] = useState([]);
 
   const candidateSkills = user.candidateSkills.map(sk => sk.skillName)
-    // user?.skills || ['React', 'TypeScript', 'Node.js', 'REST APIs', 'Docker'];
- 
+  // user?.skills || ['React', 'TypeScript', 'Node.js', 'REST APIs', 'Docker'];
+
   console.log(user);
-  useEffect(()=>{
-    const fetchPostion = async () =>{
-      try{
-        const ret = await fetch(import.meta.env.VITE_API_URI+'/position');
+  useEffect(() => {
+    const fetchPostion = async () => {
+      try {
+        const ret = await fetch(import.meta.env.VITE_API_URI + '/position');
         const data = await ret.json();
-        if(!ret.ok)
+        if (!ret.ok)
           throw new Error("Issue in fetching position");
         console.log(data);
-        const genData = data.map(p => ({...p,
+        const genData = data.map(p => ({
+          ...p,
           requiredSkills: p.positionSkills.filter(sk => sk.isRequired).map(sk => sk.roleName),
           preferredSkills: p.positionSkills.filter(sk => !sk.isRequired).map(sk => sk.roleName)
         }))
         // job.positionSkills.filter(sk => sk.isRequired).map(sk => sk.roleName)
         console.log(genData)
         setJobs(genData);
-      }catch(e){}
-      finally{}
+      } catch (e) { }
+      finally { }
     }
+
+    const fetchAppliedJobs = async () => {
+      try{
+        const res = await fetch(
+          `${import.meta.env.VITE_API_URI}/candidate/${user.candidateId}/applications`
+        );
+        const data = await res.json();
+      if(!res.ok)
+          throw new Error(data.message)
+        setAppliedJobs(data.map(a => a.positionId));
+      }catch(e){ console.error(e.message)}
+    };
     fetchPostion();
+    fetchAppliedJobs();
   }, [])
   const filteredJobs = useMemo(() => {
     return jobs.filter((job) => {
@@ -153,7 +99,7 @@ export function CandidateDashboard() {
 
       return matchesSearch && matchesType && matchesLocation;
     });
-  }, [searchQuery, filterType, filterLocation]);
+  }, [jobs, searchQuery, filterType, filterLocation]);
 
   const calculateMatchPercentage = (requiredSkills) => {
     if (!requiredSkills.length) return 0;
@@ -167,9 +113,26 @@ export function CandidateDashboard() {
     return Math.round((matched / requiredSkills.length) * 100);
   };
 
-  const handleApply = (jobId) => {
-    if (!appliedJobs.includes(jobId)) {
-      setAppliedJobs([...appliedJobs, jobId]);
+  const handleApply = async (positionId) => {
+    try {
+      const res = await fetch(
+        `${import.meta.env.VITE_API_URI}/candidate/apply`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            candidateId: user.candidateId,
+            positionId: positionId,
+          }),
+        }
+      );
+      if (!res.ok) throw new Error('Apply failed');
+      setAppliedJobs((prev) => [...prev, positionId]);
+      showToast.success("Applied", "your application has been submited")
+    } catch (e) {
+      showToast.error('Applied Failed', e.message);
     }
   };
 
@@ -178,7 +141,7 @@ export function CandidateDashboard() {
   };
 
   return (
-      <div className="space-y-6">
+    <div className="space-y-6">
       <div className="bg-gradient-to-r from-blue-50 to-blue-100 rounded-xl p-8 border border-blue-200">
         <div className="flex items-start justify-between">
           <div>
@@ -258,30 +221,30 @@ export function CandidateDashboard() {
                 onChange={(e) => setFilterType(e.target.value)}
                 placeholder="Filter by type"
                 options={[
-                  {value:"" ,label:"All Types"},
-                  {value:"Full-time", label:"Full-time"},
-                  {value:"Contract", label:"Contract"},
-                  {value:"Part-time", label:"Part-time"}
+                  { value: "", label: "All Types" },
+                  { value: "Full-time", label: "Full-time" },
+                  { value: "Contract", label: "Contract" },
+                  { value: "Part-time", label: "Part-time" }
                 ]}
               />
-              
+
 
               <Select
                 value={filterLocation}
                 onChange={(e) => setFilterLocation(e.target.value)}
                 placeholder="Filter by location"
                 options={[
-                  {value:"" ,label:"All Locations"},
-                  {value:"Remote", label:"Remote"},
-                  {value:"Contract", label:"Contract"},
-                  {value:"Part-time", label:"Part-time"}
+                  { value: "", label: "All Locations" },
+                  { value: "Remote", label: "Remote" },
+                  { value: "Contract", label: "Contract" },
+                  { value: "Part-time", label: "Part-time" }
                 ]}
               />
             </div>
 
             <div className="grid grid-cols-1 gap-4">
               {filteredJobs.map((job) => {
-                
+
                 const matchPercentage = calculateMatchPercentage(job.requiredSkills);
                 const isApplied = appliedJobs.includes(job.positionId);
                 const matchColor =
@@ -311,12 +274,12 @@ export function CandidateDashboard() {
                         <span>{job.type || 'Job Type'}</span>
                       </div>
                       <div className="flex items-center space-x-1">
-                        <DollarSign className="w-4 h-4" />
-                        <span>{job.salary || 'Pagar'}</span>
+                        <IndianRupee className="w-4 h-4" />
+                        <span>{job.baseSalary + '-' + job.maxSalary || 'Pagar'}</span>
                       </div>
                       <div className="flex items-center space-x-1">
                         <Users className="w-4 h-4" />
-                        <span>{job.applicants || '5'} applicants</span>
+                        <span>{job.applicants} applicants</span>
                       </div>
                     </div>
 
@@ -328,11 +291,10 @@ export function CandidateDashboard() {
                         return (
                           <span
                             key={index}
-                            className={`px-2 py-1 rounded text-xs font-medium ${
-                              hasSkill
-                                ? 'bg-green-100 text-green-700'
-                                : 'bg-gray-100 text-gray-600'
-                            }`}
+                            className={`px-2 py-1 rounded text-xs font-medium ${hasSkill
+                              ? 'bg-green-100 text-green-700'
+                              : 'bg-gray-100 text-gray-600'
+                              }`}
                           >
                             {skill}
                           </span>
@@ -368,15 +330,14 @@ export function CandidateDashboard() {
               <div className="flex items-start justify-between mb-4">
                 <div>
                   <h3 className="text-xl font-bold text-gray-800">{selectedJob.title}</h3>
-                  <p className="text-gray-600">{selectedJob.company}</p>
+                  <p className="text-gray-600">{selectedJob.status}</p>
                 </div>
-                <div className={`text-3xl font-bold ${
-                  calculateMatchPercentage(selectedJob.requiredSkills) >= 75
-                    ? 'text-green-600'
-                    : calculateMatchPercentage(selectedJob.requiredSkills) >= 50
+                <div className={`text-3xl font-bold ${calculateMatchPercentage(selectedJob.requiredSkills) >= 75
+                  ? 'text-green-600'
+                  : calculateMatchPercentage(selectedJob.requiredSkills) >= 50
                     ? 'text-yellow-600'
                     : 'text-red-600'
-                }`}>
+                  }`}>
                   {calculateMatchPercentage(selectedJob.requiredSkills)}% Match
                 </div>
               </div>
@@ -392,7 +353,7 @@ export function CandidateDashboard() {
                 </div>
                 <div className="flex items-center space-x-2 text-gray-700">
                   <DollarSign className="w-5 h-5 text-blue-600" />
-                  <span>{selectedJob.salary}</span>
+                  <span>{selectedJob.baseSalary + ' - ' + selectedJob.maxSalary}</span>
                 </div>
                 <div className="flex items-center space-x-2 text-gray-700">
                   <Users className="w-5 h-5 text-blue-600" />
@@ -457,9 +418,9 @@ export function CandidateDashboard() {
             )}
 
             <div className="border-t pt-4 flex gap-3">
-              {appliedJobs.includes(selectedJob.id) ? (
+              {appliedJobs.includes(selectedJob.positionId) ? (
                 <button
-                  onClick={() => handleWithdraw(selectedJob.id)}
+                  onClick={() => handleWithdraw(selectedJob.positionId)}
                   className="flex-1 px-4 py-2 bg-red-500 hover:bg-red-600 text-white rounded-lg font-medium transition-colors flex items-center justify-center space-x-2"
                 >
                   <X className="w-5 h-5" />
@@ -467,7 +428,7 @@ export function CandidateDashboard() {
                 </button>
               ) : (
                 <button
-                  onClick={() => handleApply(selectedJob.id)}
+                  onClick={() => handleApply(selectedJob.positionId)}
                   className="flex-1 px-4 py-2 bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white rounded-lg font-medium transition-all"
                 >
                   Apply Now
