@@ -9,6 +9,5 @@ namespace WebApi.Models
         [Required]
         [StringLength(30)]
         public string TypeName { get; set; }
-        public ICollection<CandidateApplication> InterviewRounds { get; set; }
     }
 }

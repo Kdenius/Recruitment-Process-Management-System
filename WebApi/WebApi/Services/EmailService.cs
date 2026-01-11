@@ -5,6 +5,7 @@ using WebApi.Services;
 using WebApi.Models;
 using Microsoft.AspNetCore.Http.HttpResults;
 using System.Runtime.InteropServices;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace WebApi.Services
 {
@@ -14,6 +15,7 @@ namespace WebApi.Services
         Task RegisterEmail(User user, string verifyUrl);
         Task ActivationEmail(Candidate candidate, string url);
         Task ApplicationAknow(string name, string email, string title, string date);
+        Task Shortlisted(string name, string email, string title, string date);
     }
     public class EmailService : IEmailService
     {
@@ -90,6 +92,17 @@ namespace WebApi.Services
                 .Replace("{{ApplicationDate}}",date.ToString())
                 .Replace("{{Year}}", DateTime.Now.Year.ToString());
             await SendEmailAsync(email, "Job Application Acknowledgment", body);
+        }
+
+        public async Task Shortlisted(string name, string email, string title, string date)
+        {
+            var templatePath = Path.Combine(Directory.GetCurrentDirectory(), "Template", "Shortlisted.html");
+            string body = File.ReadAllText(templatePath);
+            body = body.Replace("{{CandidateName}}", name)
+            .Replace("{{JobTitle}}", title)
+                .Replace("{{ApplicationDate}}", date.ToString())
+                .Replace("{{Year}}", DateTime.Now.Year.ToString());
+            await SendEmailAsync(email, "Application has been shortlisted", body);
         }
     }
 }

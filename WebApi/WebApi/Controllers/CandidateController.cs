@@ -100,8 +100,9 @@ namespace WebApi.Controllers
             {
                 Candidate = can,
                 Position = job,
-                IsOnHold = false,
-                OnHoldReason = string.Empty
+                Status = "Screening",
+                Details = string.Empty,
+                CreatedAt = DateTime.Now,
             };
 
             await _candidateApplicationRepository.CreateApplication(candidateApplication);

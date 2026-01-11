@@ -9,6 +9,7 @@ import {
   BarChart3,
   Settings,
   UserCog,
+  CheckCircle,
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 
@@ -17,7 +18,7 @@ const navItems = [
     name: 'Dashboard',
     path: '/dashboard',
     icon: LayoutDashboard,
-    roles: ['Admin', 'Recruiter', 'hr', 'interviewer', 'reviewer', 'viewer'],
+    roles: ['Admin', 'Recruiter','Candidate', 'hr', 'interviewer', 'reviewer', 'viewer'],
   },
   {
     name: 'Jobs',
@@ -61,6 +62,8 @@ const navItems = [
     icon: Settings,
     roles: ['Admin', 'Recruiter', 'hr'],
   },
+  { name: 'Applications', path: '/application', icon: CheckCircle, roles: ['Candidate', 'Reviewer', 'Recruiter']}
+
 ];
 
 export function Sidebar() {

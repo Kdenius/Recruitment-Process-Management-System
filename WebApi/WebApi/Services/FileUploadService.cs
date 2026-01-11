@@ -19,17 +19,17 @@
         }
 
         public async Task<string> UploadFileAsync(IFormFile file)
-        {   
+        {
+            var fileExtension = Path.GetExtension(file.FileName);
+            var fileName = $"{Guid.NewGuid()}{fileExtension}";
+            var physicalPath = Path.Combine(_uploadFolderPath, fileName);
 
-            var fileName = Path.GetFileName(file.FileName);
-            var filePath = Path.Combine(_uploadFolderPath, fileName);
-
-            using (var fileStream = new FileStream(filePath, FileMode.Create))
+            using (var stream = new FileStream(physicalPath, FileMode.Create))
             {
-                await file.CopyToAsync(fileStream);
+                await file.CopyToAsync(stream);
             }
 
-            return filePath;
+            return $"uploads/{fileName}";
         }
     }
 }

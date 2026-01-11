@@ -14,9 +14,10 @@ namespace WebApi.Models
         public int PositionId { get; set; }
         public Position Position { get; set; }
 
-        public bool IsOnHold { get; set; }
-        public string OnHoldReason { get; set; }
+        public string Status { get; set; }
+        public string? Details { get; set; }
 
+        public DateTime CreatedAt { get; set; }
         public ICollection<InterviewRound> InterviewRounds { get; set; }
         public ICollection<CandidateDocument> CandidateDocuments { get; set; }
     }
