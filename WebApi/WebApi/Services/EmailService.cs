@@ -1,5 +1,5 @@
 ﻿using MailKit.Net.Smtp;
-using MailKit.Security; 
+using MailKit.Security;
 using MimeKit;
 using WebApi.Services;
 using WebApi.Models;
@@ -16,11 +16,15 @@ namespace WebApi.Services
         Task ActivationEmail(Candidate candidate, string url);
         Task ApplicationAknow(string name, string email, string title, string date);
         Task Shortlisted(string name, string email, string title, string date);
+        Task InterviewScheduled(string candidateName, string email, string positionName, string roundName, DateTime scheduledAt, string mode, string locationOrLink);
+
+        Task InterviewResult(string candidateName, string email, string positionName, string roundName, string result, string remarks);
+
     }
     public class EmailService : IEmailService
     {
-       private readonly IConfiguration _confi;
-       private readonly ILogger<EmailService> _logger;
+        private readonly IConfiguration _confi;
+        private readonly ILogger<EmailService> _logger;
 
         public EmailService(IConfiguration confi, ILogger<EmailService> logger)
         {
@@ -39,12 +43,12 @@ namespace WebApi.Services
                 // var enableSsl = bool.Parse(_confi["EmailSettings:EnableSsl"]);
 
                 var message = new MimeMessage();
-                message.From.Add(new MailboxAddress("RPMS",senderEmail));
-                message.To.Add(new MailboxAddress("",to));
+                message.From.Add(new MailboxAddress("RPMS", senderEmail));
+                message.To.Add(new MailboxAddress("", to));
                 message.Subject = subject;
                 message.Body = new TextPart(MimeKit.Text.TextFormat.Html) { Text = body };
 
-                using(var client = new MailKit.Net.Smtp.SmtpClient())
+                using (var client = new MailKit.Net.Smtp.SmtpClient())
                 {
                     await client.ConnectAsync(smtpServer, smtpPort, SecureSocketOptions.StartTls);
                     await client.AuthenticateAsync(senderEmail, senderPassword);
@@ -83,13 +87,13 @@ namespace WebApi.Services
             await SendEmailAsync(candidate.Email, "Credential Delivery", body);
 
         }
-        public async Task ApplicationAknow(string name,string email,string title, string date)
+        public async Task ApplicationAknow(string name, string email, string title, string date)
         {
             var templatePath = Path.Combine(Directory.GetCurrentDirectory(), "Template", "ApplicationAknow.html");
             string body = File.ReadAllText(templatePath);
             body = body.Replace("{{CandidateName}}", name)
                 .Replace("{{JobTitle}}", title)
-                .Replace("{{ApplicationDate}}",date.ToString())
+                .Replace("{{ApplicationDate}}", date.ToString())
                 .Replace("{{Year}}", DateTime.Now.Year.ToString());
             await SendEmailAsync(email, "Job Application Acknowledgment", body);
         }
@@ -103,6 +107,63 @@ namespace WebApi.Services
                 .Replace("{{ApplicationDate}}", date.ToString())
                 .Replace("{{Year}}", DateTime.Now.Year.ToString());
             await SendEmailAsync(email, "Application has been shortlisted", body);
+        }
+
+        public async Task InterviewScheduled(string candidateName, string email, string positionName, string roundName, DateTime scheduledAt, string mode, string locationOrLink)
+        {
+            var templatePath = Path.Combine(
+                Directory.GetCurrentDirectory(),
+                "Template",
+                "InterviewSchedule.html"
+            );
+
+            string body = File.ReadAllText(templatePath);
+
+            body = body.Replace("{{CandidateName}}", candidateName)
+                       .Replace("{{PositionName}}", positionName)
+                       .Replace("{{RoundName}}", roundName)
+                       .Replace("{{Date}}", scheduledAt.ToString("dd MMM yyyy"))
+                       .Replace("{{Time}}", scheduledAt.ToString("hh:mm tt"))
+                       .Replace("{{Mode}}", mode)
+                       .Replace("{{Location}}", locationOrLink)
+                       .Replace("{{MeetingLink}}",
+                           mode == "Online" ? locationOrLink : "#")
+                       .Replace("{{Year}}", DateTime.Now.Year.ToString());
+
+            await SendEmailAsync(
+                email,
+                $"Interview Scheduled – {positionName}",
+                body
+            );
+        }
+
+        public async Task InterviewResult(string candidateName, string email, string positionName, string roundName, string result, string remarks)
+        {
+            var templatePath = Path.Combine(
+                Directory.GetCurrentDirectory(),
+                "Template",
+                "InterviewResult.html"
+            );
+
+            string body = File.ReadAllText(templatePath);
+
+            string nextStep = result == "Selected"
+                ? "Congratulations! Our HR team will contact you shortly regarding the next steps."
+                : "We encourage you to apply for future opportunities with us.";
+
+            body = body.Replace("{{CandidateName}}", candidateName)
+                       .Replace("{{PositionName}}", positionName)
+                       .Replace("{{RoundName}}", roundName)
+                       .Replace("{{Result}}", result)
+                       .Replace("{{Remarks}}", remarks)
+                       .Replace("{{NextStep}}", nextStep)
+                       .Replace("{{Year}}", DateTime.Now.Year.ToString());
+
+            await SendEmailAsync(
+                email,
+                $"Interview Result – {positionName}",
+                body
+            );
         }
     }
 }

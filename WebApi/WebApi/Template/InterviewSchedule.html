@@ -1,0 +1,94 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #e0f7fa;
+            padding: 40px;
+            margin: 0;
+        }
+
+        .container {
+            background-color: #ffffff;
+            max-width: 600px;
+            margin: auto;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+            border: 2px solid #0097a7;
+        }
+
+        h2 {
+            background-color: #0097a7;
+            color: #ffffff;
+            padding: 15px;
+            margin: -30px -30px 20px -30px;
+            border-top-left-radius: 12px;
+            border-top-right-radius: 12px;
+            text-align: center;
+        }
+
+        p {
+            font-size: 16px;
+            color: #333333;
+            margin: 10px 0;
+            line-height: 1.5;
+        }
+
+        .info-box {
+            background-color: #f1f8f9;
+            border-left: 4px solid #00796b;
+            padding: 15px;
+            margin: 20px 0;
+        }
+
+        .button {
+            display: block;
+            background-color: #00796b;
+            color: #ffffff !important;
+            padding: 12px 25px;
+            border-radius: 5px;
+            text-decoration: none;
+            text-align: center;
+            font-size: 16px;
+            font-weight: bold;
+            margin: 25px auto;
+            width: fit-content;
+        }
+
+        .footer {
+            margin-top: 30px;
+            font-size: 14px;
+            color: #555;
+            text-align: center;
+            border-top: 1px solid #ddd;
+            padding-top: 15px;
+        }
+
+        strong {
+            color: #00796b;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Interview Scheduled</h2>
+
+        <p>Hello <strong>{{CandidateName}}</strong>,</p>
+        <p>We are pleased to inform you that your interview has been scheduled for the position of <strong>{{PositionName}}</strong>.</p>
+
+        <div class="info-box">
+            <p><strong>Interview Round:</strong> {{RoundName}}</p>
+            <p><strong>Date:</strong> {{Date}}</p>
+            <p><strong>Time:</strong> {{Time}}</p>
+            <p><strong>Mode:</strong> {{Mode}}</p>
+            <p><strong>Location / Link:</strong> {{Location}}</p>
+        </div>
+        <p>Please ensure that you are available on time and prepared for the interview.</p>
+        <p>If you have any questions or need to reschedule, please contact the recruitment team.</p>
+        <div class="footer"> &copy; {{Year}} RPMS. All rights reserved. <br> Optimizing Hiring, One Candidate at a Time. </div>
+    </div>
+</body>
+</html>

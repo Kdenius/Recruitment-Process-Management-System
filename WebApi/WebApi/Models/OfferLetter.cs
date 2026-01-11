@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Numerics;
 
 namespace WebApi.Models
@@ -8,6 +9,7 @@ namespace WebApi.Models
         [Key]
         public int OfferId { get; set; }
 
+        [ForeignKey("CandidateApplication")]
         public int ApplicationId { get; set; }
         public CandidateApplication CandidateApplication { get; set; }
 

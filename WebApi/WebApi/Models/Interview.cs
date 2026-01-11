@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace WebApi.Models
 {
@@ -7,13 +8,14 @@ namespace WebApi.Models
         [Key]
         public int InterviewId { get; set; }
 
+        [ForeignKey("InterviewRound")]
         public int RoundId { get; set; }
         public InterviewRound InterviewRound { get; set; }
 
         public int InterviewerId { get; set; }
         public User Interviewer { get; set; }
 
-        public string FeedbackText { get; set; }
+        public string? FeedbackText { get; set; }
 
         public int? FeedbackScore { get; set; }//1 thi 10
 

@@ -77,5 +77,6 @@ namespace WebApi.Models
         public DbSet<OfferLetter> OfferLetters { get; set; }
         public DbSet<BulkUploadBatch> Batches { get; set; }
         public DbSet<ResumeJob> Jobs { get; set; }
+        public DbSet<RoundType> RoundTypes { get; set; }
     }
 }

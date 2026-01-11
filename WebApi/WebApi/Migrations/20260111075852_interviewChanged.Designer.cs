@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using WebApi.Models;
 
@@ -11,9 +12,11 @@ using WebApi.Models;
 namespace WebApi.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260111075852_interviewChanged")]
+    partial class interviewChanged
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -137,7 +140,13 @@ namespace WebApi.Migrations
                     b.Property<int>("ApplicationId")
                         .HasColumnType("int");
 
+                    b.Property<int>("CandidateApplicationApplicationId")
+                        .HasColumnType("int");
+
                     b.Property<int>("DocTypeId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("DocumentTypeDocTypeId")
                         .HasColumnType("int");
 
                     b.Property<string>("DocumentUrl")
@@ -152,9 +161,9 @@ namespace WebApi.Migrations
 
                     b.HasKey("DocumentId");
 
-                    b.HasIndex("ApplicationId");
+                    b.HasIndex("CandidateApplicationApplicationId");
 
-                    b.HasIndex("DocTypeId");
+                    b.HasIndex("DocumentTypeDocTypeId");
 
                     b.ToTable("CandidateDocuments");
                 });
@@ -218,6 +227,9 @@ namespace WebApi.Migrations
                     b.Property<string>("FeedbackText")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<int>("InterviewRoundRoundId")
+                        .HasColumnType("int");
+
                     b.Property<int>("InterviewerId")
                         .HasColumnType("int");
 
@@ -226,9 +238,9 @@ namespace WebApi.Migrations
 
                     b.HasKey("InterviewId");
 
-                    b.HasIndex("InterviewerId");
+                    b.HasIndex("InterviewRoundRoundId");
 
-                    b.HasIndex("RoundId");
+                    b.HasIndex("InterviewerId");
 
                     b.ToTable("Interviews");
                 });
@@ -269,6 +281,9 @@ namespace WebApi.Migrations
                     b.Property<int>("ApplicationId")
                         .HasColumnType("int");
 
+                    b.Property<int>("CandidateApplicationApplicationId")
+                        .HasColumnType("int");
+
                     b.Property<bool>("IsCompleted")
                         .HasColumnType("bit");
 
@@ -295,7 +310,7 @@ namespace WebApi.Migrations
 
                     b.HasKey("RoundId");
 
-                    b.HasIndex("ApplicationId");
+                    b.HasIndex("CandidateApplicationApplicationId");
 
                     b.HasIndex("RoundTypeId");
 
@@ -313,6 +328,9 @@ namespace WebApi.Migrations
                     b.Property<int>("ApplicationId")
                         .HasColumnType("int");
 
+                    b.Property<int>("CandidateApplicationApplicationId")
+                        .HasColumnType("int");
+
                     b.Property<string>("OfferUrl")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -328,7 +346,7 @@ namespace WebApi.Migrations
 
                     b.HasKey("OfferId");
 
-                    b.HasIndex("ApplicationId");
+                    b.HasIndex("CandidateApplicationApplicationId");
 
                     b.HasIndex("SentByUserId");
 
@@ -567,13 +585,13 @@ namespace WebApi.Migrations
                 {
                     b.HasOne("WebApi.Models.CandidateApplication", "CandidateApplication")
                         .WithMany("CandidateDocuments")
-                        .HasForeignKey("ApplicationId")
+                        .HasForeignKey("CandidateApplicationApplicationId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("WebApi.Models.DocumentType", "DocumentType")
                         .WithMany()
-                        .HasForeignKey("DocTypeId")
+                        .HasForeignKey("DocumentTypeDocTypeId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -603,16 +621,16 @@ namespace WebApi.Migrations
 
             modelBuilder.Entity("WebApi.Models.Interview", b =>
                 {
+                    b.HasOne("WebApi.Models.InterviewRound", "InterviewRound")
+                        .WithMany("Interviews")
+                        .HasForeignKey("InterviewRoundRoundId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.HasOne("WebApi.Models.User", "Interviewer")
                         .WithMany("Interviews")
                         .HasForeignKey("InterviewerId")
                         .OnDelete(DeleteBehavior.NoAction)
-                        .IsRequired();
-
-                    b.HasOne("WebApi.Models.InterviewRound", "InterviewRound")
-                        .WithMany("Interviews")
-                        .HasForeignKey("RoundId")
-                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("InterviewRound");
@@ -643,7 +661,7 @@ namespace WebApi.Migrations
                 {
                     b.HasOne("WebApi.Models.CandidateApplication", "CandidateApplication")
                         .WithMany("InterviewRounds")
-                        .HasForeignKey("ApplicationId")
+                        .HasForeignKey("CandidateApplicationApplicationId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -662,7 +680,7 @@ namespace WebApi.Migrations
                 {
                     b.HasOne("WebApi.Models.CandidateApplication", "CandidateApplication")
                         .WithMany()
-                        .HasForeignKey("ApplicationId")
+                        .HasForeignKey("CandidateApplicationApplicationId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 

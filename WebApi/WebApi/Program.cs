@@ -23,6 +23,8 @@ builder.Services.AddScoped<IPositionRepository, PositionRepository>();
 builder.Services.AddScoped<ICandidateRepository, CandidateRepository>();
 builder.Services.AddSingleton<IFileUploadService, FileUploadService>();
 builder.Services.AddScoped<ICandidateApplicationRepository, CandidateApplicationRepository>();
+builder.Services.AddScoped<IInterviewRepository, InterviewRepository>();
+builder.Services.AddScoped<IRoundTypeRepository, RoundTypeRepository>();
 builder.Services.AddScoped<IBatchRepository, BatchRepository>();
 builder.Services.AddHttpClient<FastApiClient>();
 builder.Services.AddScoped<ResumeJobService>();
@@ -36,7 +38,7 @@ builder.Services.AddCors(options =>
             policy.WithOrigins("http://localhost:5173") // Vite dev server
                   .AllowAnyHeader()
                   .AllowAnyMethod()
-                  .AllowCredentials(); // only if you need cookies/auth
+                  .AllowCredentials(); // only for cookies/auth
         });
 });
 
