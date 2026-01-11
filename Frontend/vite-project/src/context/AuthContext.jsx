@@ -31,6 +31,7 @@ export function AuthProvider({ children }) {
                 }
                 localStorage.setItem('refreshToken', res.data.refreshToken);
                 setUser(res.data);
+                console.log(res.data)
                 showToast.success('Welcome, ' +res.data.firstName, 'Nice to see you again');
             }catch(e){}
         }

@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.Text.Json.Serialization;
 using WebApi.Models;
 
 namespace WebApi.Models
@@ -18,7 +19,9 @@ namespace WebApi.Models
         public string? Details { get; set; }
 
         public DateTime CreatedAt { get; set; }
+        [JsonIgnore]
         public ICollection<InterviewRound> InterviewRounds { get; set; }
+        [JsonIgnore]
         public ICollection<CandidateDocument> CandidateDocuments { get; set; }
     }
 }

@@ -17,9 +17,16 @@ import {
   BadgeIndianRupee,
   BookAudio,
   File,
+  Calendar,
+  CalendarArrowDown,
+  CalendarArrowUpIcon,
 } from 'lucide-react';
 import { Modal } from '../components/common/modal';
 import { showToast } from '../components/common/toast';
+import { useAuth } from '../context/AuthContext';
+import { Select } from '../components/common/select';
+import { Input } from '../components/common/input';
+import { Button } from '../components/common/button';
 
 export function Applications() {
   const [filter, setFilter] = useState('all');
@@ -27,7 +34,18 @@ export function Applications() {
   const [selectedApplication, setSelectedApplication] = useState(null);
   const [actionPopup, setActionPopup] = useState(null); // 'shortlist' | 'reject'
   const [remarks, setRemarks] = useState('');
-
+  const { user } = useAuth();
+  const [round, setRound] = useState([]);
+  const [interviewers, SetInterviewers] = useState([]);
+  const [scheduleForm, setScheduleForm] = useState({
+    roundTypeId: '',
+    scheduledDate: '',
+    scheduledTime: '',
+    mode: '',
+    location: '',
+    meetingLink: '',
+    interviewerId: ''
+  });
   const candidateSkills =
     selectedApplication?.candidate.skills.map(s => s.skillName.toLowerCase()) || [];
 
@@ -64,7 +82,40 @@ export function Applications() {
       } catch (e) { }
       finally { }
     }
+    const fetchRoundandInter = async () => {
+      try {
+        const ret = await fetch(import.meta.env.VITE_API_URI + '/user/interviewers', {
+          headers: {
+            'Content-Type': 'application/json',
+            // 'Authorization': `Bearer ${user.jwtToken}`
+          }
+        });
+        const data = await ret.json();
+        if (!ret.ok) {
+          new Error(data.message)
+        }
+        SetInterviewers(data);
+
+        const ret2 = await fetch(import.meta.env.VITE_API_URI + '/round-types', {
+          headers: {
+            'Content-Type': 'application/json',
+            // 'Authorization': `Bearer ${user.jwtToken}`
+          }
+        })
+        const data2 = await ret2.json();
+        console.log(data2)
+        if (!ret2.ok) {
+          new Error(data2.message)
+        }
+        setRound(data2);
+      } catch (e) {
+        console.log(e)
+      }
+    }
     fetchApplication();
+    if (user?.roleName == "Recruiter") {
+      fetchRoundandInter();
+    }
   }, [])
 
   const handleAction = async (status) => {
@@ -91,6 +142,49 @@ export function Applications() {
     }
   }
 
+  const handleScheduleInterview = async (e) => {
+    e.preventDefault();
+    try {
+      const ret = await fetch(import.meta.env.VITE_API_URI + '/interviews/schedule', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          // 'Authorization': `Bearer ${user.jwtToken}`
+        },
+        body: JSON.stringify({
+          applicationId: Number(selectedApplication.applicationId),
+          roundTypeId: Number(scheduleForm.roundTypeId),
+          roundNumber: 1,
+          scheduledAt: new Date(
+            `${scheduleForm.scheduledDate}T${scheduleForm.scheduledTime}`
+          ).toISOString(),
+          mode: Number(scheduleForm.mode),
+          location: scheduleForm.location,
+          meetingLink: scheduleForm.meetingLink,
+          interviewerIds: [
+            Number(scheduleForm.interviewerId)
+          ]
+        })
+      })
+      if (!ret.ok)
+        throw new Error(ret)
+      showToast.success('Scheduled', 'Interview successfully Scheduled');
+    } catch (e) {
+      console.log(e);
+    } finally {
+      setActionPopup(null);
+      setSelectedApplication(null)
+      setScheduleForm({
+        roundTypeId: '',
+        scheduledDate: '',
+        scheduledTime: '',
+        mode: '',
+        location: '',
+        meetingLink: '',
+        interviewerId: ''
+      })
+    }
+  }
 
   const filteredApplications = applications.filter(app => {
     if (filter === 'all') return true;
@@ -105,6 +199,13 @@ export function Applications() {
           <span>Shortlisted</span>
         </span>
       );
+    }
+    if(stage == 'Interview'){
+      return(<span className="inline-flex items-center space-x-1 px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-700 border border-blue-200">
+          <CalendarArrowUpIcon className="w-3 h-3" />
+          <span>Interview</span>
+        </span>
+      )
     }
 
     return (
@@ -267,6 +368,15 @@ export function Applications() {
                             setActionPopup('decision');
                           }}>
                           <UserCheck className="w-4 h-4" />
+                        </button>
+                      )}
+                      {app.status === 'Shortlisted' && user?.roleName == 'Recruiter' && (
+                        <button className="p-2 text-green-600 hover:bg-green-50 rounded-lg transition-colors"
+                          onClick={() => {
+                            setSelectedApplication(app);
+                            setActionPopup('interview');
+                          }}>
+                          <CalendarArrowUpIcon className="w-4 h-4" />
                         </button>
                       )}
                     </div>
@@ -445,6 +555,148 @@ export function Applications() {
           </div>
         </Modal>
       )}
+
+      {/* interview module for recruiter///////////////////////////////// */}
+      {actionPopup == 'interview' && selectedApplication && (
+        <Modal
+          isOpen={true}
+          onClose={() => { setActionPopup(''); setSelectedApplication(null) }}
+          title="Schedule Interview"
+          size="lg"
+        >
+          <form onSubmit={handleScheduleInterview} className="space-y-5">
+
+            {/* Candidate & Position (Read Only) */}
+            <div className="bg-green-50 border border-green-200 rounded-lg p-4">
+              <p className="text-sm font-semibold text-gray-800">
+                Candidate: <span className="font-normal">{selectedApplication.candidate.name}</span>
+              </p>
+              <p className="text-sm text-gray-600">
+                Position: {selectedApplication.position.title}
+              </p>
+            </div>
+
+            {/* Round Type */}
+            <Select
+              label="Round Type"
+              value={scheduleForm.roundTypeId}
+              onChange={(e) => setScheduleForm(prev => ({
+                ...prev,
+                roundTypeId: e.target.value
+              }))}
+              options={[
+                { value: '', label: 'Select round type...' },
+                ...round.map(rt => ({
+                  value: rt.roundTypeId,
+                  label: rt.typeName
+                }))
+              ]}
+              required
+            />
+
+            {/* Date & Time */}
+            <div className="grid grid-cols-2 gap-4">
+              <Input
+                label="Date"
+                type="date"
+                value={scheduleForm.scheduledDate}
+                onChange={(e) => setScheduleForm(prev => ({
+                  ...prev,
+                  scheduledDate: e.target.value
+                }))}
+                required
+              />
+              <Input
+                label="Time"
+                type="time"
+                value={scheduleForm.scheduledTime}
+                onChange={(e) => setScheduleForm(prev => ({
+                  ...prev,
+                  scheduledTime: e.target.value
+                }))}
+                required
+              />
+            </div>
+
+            {/* Mode */}
+            <Select
+              label="Interview Mode"
+              value={scheduleForm.mode}
+              onChange={(e) => setScheduleForm(prev => ({
+                ...prev,
+                mode: e.target.value
+              }))}
+              options={[
+                { value: '', label: 'Select mode...' },
+                { value: 0, label: 'Online' },
+                { value: 1, label: 'Offline' }
+              ]}
+              required
+            />
+
+            {/* Conditional Fields */}
+            {scheduleForm.mode == 1 && (
+              <Input
+                label="Location"
+                placeholder="Enter interview location"
+                value={scheduleForm.location}
+                onChange={(e) => setScheduleForm(prev => ({
+                  ...prev,
+                  location: e.target.value
+                }))}
+                required
+              />
+            )}
+
+            {scheduleForm.mode == 0 && (
+              <Input
+                label="Meeting Link"
+                placeholder="Enter meeting link"
+                value={scheduleForm.meetingLink}
+                onChange={(e) => setScheduleForm(prev => ({
+                  ...prev,
+                  meetingLink: e.target.value
+                }))}
+                required
+              />
+            )}
+
+            {/* Interviewer */}
+            <Select
+              label="Interviewer"
+              value={scheduleForm.interviewerId}
+              onChange={(e) => setScheduleForm(prev => ({
+                ...prev,
+                interviewerId: e.target.value
+              }))}
+              options={[
+                { value: '', label: 'Select interviewer...' },
+                ...interviewers.map(i => ({
+                  value: i.userId,
+                  label: i.firstName + ' ' + i.lastName
+                }))
+              ]}
+              required
+            />
+
+            {/* Actions */}
+            <div className="flex justify-end space-x-3 pt-4">
+              <Button
+                variant="secondary"
+                type="button"
+                onClick={() => setActionPopup(null)}
+              >
+                Cancel
+              </Button>
+              <Button type="submit">
+                Schedule Interview
+              </Button>
+            </div>
+
+          </form>
+        </Modal>
+      )}
+
 
     </div>
   );

@@ -22,6 +22,8 @@ namespace WebApi.Repository
         Task<IEnumerable<UserRoleDTO>> GetAll();
         bool UpdateUserRole(int userId, int roleId);
 
+        Task<IEnumerable<UserRoleDTO>> GetInterviewers();
+        //string VerifyAdmin(string password);
         ApiResponse<object> VerifyAdmin(string password);
     }
     public class UserRepository : IUserRepository
@@ -134,6 +136,10 @@ namespace WebApi.Repository
             _con.SaveChanges();
             return new ApiResponse<LoginResponseDTO>(success:true, message:"Token Validated", data: response);
         }
+        /*public string VerifyAdmin(string password)
+        {
+            return _passwordHasher.HashPassword(default, password);
+        }*/
 
         public ApiResponse<object> VerifyAdmin(string password)
         {
@@ -143,7 +149,7 @@ namespace WebApi.Repository
             string JwtToken = _jwtTokenService.GenerateJwtToken(0, _config["Admin:Mail"], "Admin");
             return new ApiResponse<object>(true, "Login Successfully", data: JwtToken);
         }
-            
+
         public async Task<IEnumerable<UserRoleDTO>> GetAll()
         {
             var ret = await (from user in _con.Users
@@ -169,6 +175,25 @@ namespace WebApi.Repository
             user.RoleId = roleId;
             _con.SaveChanges();
             return true;
+        }
+
+        public async Task<IEnumerable<UserRoleDTO>> GetInterviewers()
+        {
+            var interviewers = await (from user in _con.Users
+                                      join role in _con.Roles on user.RoleId equals role.RoleId
+                                      where role.RoleName == "Interviewer" // Filter by RoleName
+                                      select new UserRoleDTO
+                                      {
+                                          UserId = user.UserId,
+                                          FirstName = user.FirstName,
+                                          LastName = user.LastName,
+                                          Email = user.Email,
+                                          CreatedAt = user.CreatedAt,
+                                          RoleId = role.RoleId,
+                                          RoleName = role.RoleName,
+                                          IsVerified = user.IsVerified
+                                      }).ToListAsync();
+            return interviewers;
         }
     }
 }

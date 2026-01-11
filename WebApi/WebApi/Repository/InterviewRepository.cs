@@ -11,6 +11,10 @@ namespace WebApi.Repository
         Task SubmitFeedbackAsync(Interview interview, List<InterviewRating> ratings);
         Task CompleteRoundAsync(int roundId, InterviewResult result);
         Task<InterviewRound> GetInterviewRoundByIdAsync(int roundId);
+
+        Task<IEnumerable<InterviewRound>> GetRoundsByInterviewerIdAsync(int interviewerId);
+
+        Task<IEnumerable<Interview>> GetInterviewsByInterviewerIdAsync(int interviewerId);
     }
     public class InterviewRepository : IInterviewRepository
     {
@@ -87,5 +91,41 @@ namespace WebApi.Repository
             .FirstOrDefaultAsync(r => r.RoundId == roundId);
             return ret;
         }
+
+        public async Task<IEnumerable<InterviewRound>> GetRoundsByInterviewerIdAsync(int interviewerId)
+        {
+            return await _context.InterviewRounds
+                .Include(r => r.RoundType)
+                .Include(r => r.CandidateApplication)
+                    .ThenInclude(a => a.Candidate)
+                .Include(r => r.CandidateApplication)
+                    .ThenInclude(a => a.Position)
+                .Include(r => r.Interviews)
+                .Where(r => r.Interviews.Any(i => i.InterviewerId == interviewerId))
+                .OrderByDescending(r => r.ScheduledAt)
+                .ToListAsync();
+        }
+
+        public async Task<IEnumerable<Interview>> GetInterviewsByInterviewerIdAsync(int interviewerId)
+        {
+            return await _context.Interviews
+                .Where(i => i.InterviewerId == interviewerId)
+
+                .Include(i => i.InterviewRound)
+                    .ThenInclude(r => r.RoundType)
+
+                .Include(i => i.InterviewRound)
+                    .ThenInclude(r => r.CandidateApplication)
+                        .ThenInclude(a => a.Candidate)
+
+                .Include(i => i.InterviewRound)
+                    .ThenInclude(r => r.CandidateApplication)
+                        .ThenInclude(a => a.Position)
+
+                .OrderByDescending(i => i.InterviewRound.ScheduledAt)
+
+                .ToListAsync();
+        }
+
     }
 }

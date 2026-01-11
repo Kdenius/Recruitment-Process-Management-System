@@ -18,7 +18,7 @@ const navItems = [
     name: 'Dashboard',
     path: '/dashboard',
     icon: LayoutDashboard,
-    roles: ['Admin', 'Recruiter','Candidate', 'hr', 'interviewer', 'reviewer', 'viewer'],
+    roles: ['Admin', 'Recruiter','Candidate', 'hr', 'Interviewer', 'reviewer', 'viewer'],
   },
   {
     name: 'Jobs',
@@ -30,13 +30,13 @@ const navItems = [
     name: 'Candidates',
     path: '/candidates',
     icon: Users,
-    roles: ['Admin', 'Recruiter', 'hr', 'reviewer', 'interviewer', 'viewer'],
+    roles: ['Admin', 'Recruiter', 'hr', 'reviewer', 'Interviewer', 'viewer'],
   },
   {
     name: 'Interviews',
     path: '/interviews',
     icon: Calendar,
-    roles: ['Admin', 'Recruiter', 'hr', 'interviewer', 'viewer', 'Candidate'],
+    roles: ['Admin', 'Recruiter', 'hr', 'Interviewer', 'viewer', 'Candidate'],
   },
   {
     name: 'Documents',

@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Text.Json.Serialization;
 using WebApi.Enums;
 
 namespace WebApi.Models
@@ -28,6 +29,7 @@ namespace WebApi.Models
         public int RoundTypeId { get; set; }
         public RoundType RoundType { get; set; }
 
+        [JsonIgnore]
         public ICollection<Interview> Interviews { get; set; }
     }
 }

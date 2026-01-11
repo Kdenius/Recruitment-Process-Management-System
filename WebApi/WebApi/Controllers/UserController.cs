@@ -40,5 +40,18 @@ namespace WebApi.Controllers
                 return BadRequest(new { message = "Role change Failed" });
             return Ok(new { message= "User Roles changed" });
         }
+
+        [HttpGet("interviewers")]
+        public async Task<IActionResult> GetInterviewers()
+        {
+            var interviewers = await _userRepository.GetInterviewers();
+
+            if (interviewers == null || !interviewers.Any())
+            {
+                return NotFound(new { message = "No interviewers found" });
+            }
+
+            return Ok(interviewers);
+        }
     }
 }

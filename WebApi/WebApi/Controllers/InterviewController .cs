@@ -29,6 +29,8 @@ namespace WebApi.Controllers
             var app = await _candidateApplicationRepository.GetApplicationsByIdAsync(dto.ApplicationId);
             if (app == null)
                 throw new Exception("Application not found");
+            if (app.Status == "Shortlisted")
+                await _candidateApplicationRepository.UpdateApplicationStatusAsync(dto.ApplicationId, "Interview");
             var round = new InterviewRound
             {
                 ApplicationId = dto.ApplicationId,
@@ -81,6 +83,29 @@ namespace WebApi.Controllers
             var res = dto.Result == InterviewResult.Selected ? "Selected" : "Rejected";
             await _emailService.InterviewResult(rnd.CandidateApplication.Candidate.Name, rnd.CandidateApplication.Candidate.Email, rnd.CandidateApplication.Position.Title, rnd.RoundType.TypeName, res, dto.Remark);
             return Ok(new { message = "Decision saved" });
+        }
+
+        /*[HttpGet("interviewer/{interviewerId}")]
+        public async Task<IActionResult> GetInterviewerSchedule(int interviewerId)
+        {
+            var rounds = await _repo.GetRoundsByInterviewerIdAsync(interviewerId);
+
+            if (rounds == null || !rounds.Any())
+            {
+                return NotFound(new { message = "No interviews found for this interviewer." });
+            }
+            return Ok(rounds);
+        }*/
+
+        [HttpGet("interviewer/{interviewerId}")]
+        public async Task<IActionResult> GetInterviewerInterviews(int interviewerId)
+        {
+            var interviews = await _repo.GetInterviewsByInterviewerIdAsync(interviewerId);
+
+            if (interviews == null || !interviews.Any())
+                return NotFound(new { message = "No interviews found for this interviewer." });
+
+            return Ok(interviews);
         }
     }
 
