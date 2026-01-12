@@ -21,6 +21,7 @@ namespace WebApi.Services
         Task InterviewResult(string candidateName, string email, string positionName, string roundName, string result, string remarks);
         Task SelectedCandidateEmail(string candidateName, string email, string positionName);
         Task RejectedCandidateEmail(string candidateName, string email, string positionName);
+        Task DocumentVerificationEmail(string candidateName, string email, string positionName, string portalLink);
     }
     public class EmailService : IEmailService
     {
@@ -190,6 +191,29 @@ namespace WebApi.Services
 
             await SendEmailAsync(email, $"Application Update – {positionName}", body);
         }
+
+        public async Task DocumentVerificationEmail(string candidateName,string email,string positionName, string portalLink)
+        {
+            var templatePath = Path.Combine(
+                Directory.GetCurrentDirectory(),
+                "Template",
+                "DocumentVerificationMail.html"
+            );
+
+            string body = File.ReadAllText(templatePath);
+
+            body = body.Replace("{{CandidateName}}", candidateName)
+                       .Replace("{{PositionName}}", positionName)
+                       .Replace("{{PortalLink}}", portalLink)
+                       .Replace("{{Year}}", DateTime.Now.Year.ToString());
+
+            await SendEmailAsync(
+                email,
+                $"Document Verification Required – {positionName}",
+                body
+            );
+        }
+
 
     }
 }

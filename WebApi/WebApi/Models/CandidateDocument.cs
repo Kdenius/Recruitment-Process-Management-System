@@ -16,9 +16,9 @@ namespace WebApi.Models
         public int DocTypeId { get; set; }
         public DocumentType DocumentType { get; set; }
 
-        public string DocumentUrl { get; set; }
+        public string? DocumentUrl { get; set; }
         public bool IsVerified { get; set; }
 
-        public DateTime UploadedAt { get; set; }
+        public DateTime? UploadedAt { get; set; }
     }
 }

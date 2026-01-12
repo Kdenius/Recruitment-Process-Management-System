@@ -28,6 +28,8 @@ builder.Services.AddScoped<IRoundTypeRepository, RoundTypeRepository>();
 builder.Services.AddScoped<IBatchRepository, BatchRepository>();
 builder.Services.AddHttpClient<FastApiClient>();
 builder.Services.AddScoped<ResumeJobService>();
+builder.Services.AddScoped<IDocumentTypeRepository, DocumentTypeRepository>();
+builder.Services.AddScoped<IDocumentVerificationRepository,  DocumentVerificationRepository>();
 builder.Services.AddLogging();
 
 builder.Services.AddCors(options =>
