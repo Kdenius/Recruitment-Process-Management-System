@@ -5,7 +5,7 @@ import { Modal } from '../components/common/modal';
 import { Input } from '../components/common/input';
 import { Select } from '../components/common/select';
 import { showToast } from '../components/common/toast';
-import { Calendar, Plus, Video, MessageSquare, Clock, ArrowRightCircle, CircleArrowLeft, CornerRightDown, CalendarCheck, Star, XCircle, ImageOff } from 'lucide-react';
+import { Calendar, Plus, Video, MessageSquare, Clock, ArrowRightCircle, CircleArrowLeft, CornerRightDown, CalendarCheck, Star, XCircle, ImageOff, EyeClosed, LucideEye, BookMarked, CheckCircle } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 
 export function Interviews() {
@@ -21,41 +21,41 @@ export function Interviews() {
         feedbackScore: 0
         // ratings: [] // Array of { skillId, rating, remark }
     });
+    const [selectDecision, setSelectDecision] = useState(null);
+    const [remarks, setRemarks] = useState("")
 
 
-    useEffect(() => {
-        const fetchInterview = async () => {
-            try {
-                const ret = await fetch(import.meta.env.VITE_API_URI + '/interviews/interviewer/' + user.userId, {
-                    headers: {
-                        'Content-Type': 'application/json',
-                        // 'Authorization': `Bearer ${user.jwtToken}`
-                    }
-                });
-                const data = await ret.json();
-                // console.log(data)
-                if (ret.ok)
-                    SetInterviews(data);
-                else
-                    throw new Error('issue in fetching interviews');
-
-
-                //fetch skills
-                const ret2 = await fetch(import.meta.env.VITE_API_URI + '/skill', {
-                    headers: {
-                        'Content-Type': 'application/json',
-                        // 'Authorization': `Bearer ${user.jwtToken}`
-                    }
-                })
-                const res = await ret2.json();
-                if (!ret2.ok)
-                    new Error(res.message);
-                setAvailableSkills(res);
-            } catch (e) {
-                console.log(e);
-            }
-
+    const fetchInterview = async () => {
+        try {
+            const ret = await fetch(import.meta.env.VITE_API_URI + '/interviews/interviewer/' + user.userId, {
+                headers: {
+                    'Content-Type': 'application/json',
+                    // 'Authorization': `Bearer ${user.jwtToken}`
+                }
+            });
+            const data = await ret.json();
+            // console.log(data)
+            if (ret.ok)
+                SetInterviews(data);
+            else
+                throw new Error('issue in fetching interviews');
+            //fetch skills
+            const ret2 = await fetch(import.meta.env.VITE_API_URI + '/skill', {
+                headers: {
+                    'Content-Type': 'application/json',
+                    // 'Authorization': `Bearer ${user.jwtToken}`
+                }
+            })
+            const res = await ret2.json();
+            if (!ret2.ok)
+                new Error(res.message);
+            setAvailableSkills(res);
+        } catch (e) {
+            console.log(e);
         }
+
+    }
+    useEffect(() => {
         fetchInterview();
     }, [])
 
@@ -104,16 +104,17 @@ export function Interviews() {
         );
     };
 
+
     const handleSubmitFeedback = async (e) => {
         e.preventDefault();
-        const r = ratings.map(r=>({
+        const r = ratings.map(r => ({
             skillId: r.skillId,
-    rating: r.rating,
-    remark: r.remark
+            rating: r.rating,
+            remark: r.remark
         }));
-        try{
-            const ret = await fetch(import.meta.env.VITE_API_URI+'/interviews/feedback',{
-             method: 'POST',
+        try {
+            const ret = await fetch(import.meta.env.VITE_API_URI + '/interviews/feedback', {
+                method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                     // 'Authorization': `Bearer ${user.jwtToken}`
@@ -127,19 +128,54 @@ export function Interviews() {
             })
 
             const res = await ret.json()
-            if(!ret.ok)
+            if (!ret.ok)
                 throw Error('submition ma locha')
             setIsFeedbackModalOpen(false);
             showToast.success(
                 'Feedback Submitted',
                 'Interview feedback has been recorded successfully'
             );
-        }catch(e){
+        } catch (e) {
             console.log(e)
             console.log("falied to submit feedback")
         }
     };
+    const reviewEvalution = (interview) => {
+        setFeedback({ feedbackScore: interview.feedbackScore, feedbackText: interview.feedbackText });
+        SetSelectedInterview(interview);
+        SetRatings(interview.interviewRatings.map(ir => ({
+            skillId: ir.skill.skillId,
+            skillName: ir.skill.skillName,
+            rating: ir.rating,
+            remark: ir.remark
+        })))
+    }
 
+    const handleResult = async (res) => {
+        try {
+            const ret = await fetch(import.meta.env.VITE_API_URI + '/interviews/decision/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    roundId: selectDecision.roundId,
+                    result: res == 'Selected' ? 1 : 2,
+                    remark: remarks
+                }),
+            })
+            const data = await ret.json();
+            if (!ret.ok) {
+                throw new Error(data.message)
+            }
+            setSelectDecision(null);
+            setRemarks('');
+
+            showToast.success('Selected', data.message)
+        } catch (e) {
+            console.log(e.message)
+        }
+    }
     // const interviews = [
     //     { id: '1', candidate: 'John Doe', position: 'Senior Developer', date: '2024-02-15', time: '10:00 PM', type: 'Technical', round: 1, status: 'scheduled', interviewer: 'Alice Johnson' },
     //     { id: '2', candidate: 'Jane Smith', position: 'UI/UX Designer', date: '2024-02-15', time: '2:00 PM', type: 'HR', round: 2, status: 'completed', interviewer: 'Bob Williams' },
@@ -150,8 +186,9 @@ export function Interviews() {
     const getStatusBadge = (status) => {
         const styles = {
             scheduled: 'bg-blue-100 text-blue-700 border-blue-200',
-            completed: 'bg-green-100 text-green-700 border-green-200',
-            cancelled: 'bg-red-100 text-red-700 border-red-200',
+            completed: 'bg-violet-100 text-violet-700 border-violet-700',
+            rejected: 'bg-red-100 text-red-700 border-red-200',
+            selected: 'bg-green-100 text-green-700 border-green-200'
         };
 
         return (
@@ -252,26 +289,40 @@ export function Interviews() {
                                                 </div>
                                             </div>
                                         </td>
-                                        <td className="px-6 py-4">{interview.interviewRound.candidateApplication.position.title}</td>
-                                        <td className="px-6 py-4">
-                                            <p>{new Date(interview.scheduledAt).toLocaleDateString('en-GB', {
+                                        <td className="item-center px-2 py-4">{interview.interviewRound.candidateApplication.position.title}</td>
+                                        <td className="item-center px-2 py-4">
+                                            <p>{new Date(interview.interviewRound.scheduledAt).toLocaleDateString('en-GB', {
                                                 hour: 'numeric',
                                                 minute: '2-digit',
                                                 hour12: true
                                             })}</p>
                                         </td>
-                                        <td className="px-6 py-4">{getTypeBadge(interview.interviewRound.roundType.typeName)}</td>
+                                        <td className="item-center px-2 py-4">{getTypeBadge(interview.interviewRound.roundType.typeName)}</td>
                                         <td className="px-6 py-4 text-center">{interview.interviewRound.roundNumber}</td>
-                                        <td className="px-6 py-4">{getStatusBadge(interview.interviewRound.isCompleted ? 'completed' : 'scheduled')}</td>
-                                        <td className="px-6 py-4">
-                                            {interview.interviewRound.isCompleted == true && <CalendarCheck className="w-4 h-4 text-blue-600" />}
-                                            {interview.interviewRound.isCompleted === false && (
+                                        <td className="item-center px-2 py-4">{getStatusBadge(interview.interviewRound.result == 0 ? (interview.completedAt ? 'completed' : 'scheduled') : (interview.interviewRound.result == 1 ? 'selected' : 'rejected'))}</td>
+                                        {/* {interview.interviewRound.result != 0 &&(
+
+                                            )
+                                        } */}
+                                        {interview.completedAt != null ? (
+                                            <td className="flex gap-4 px-6 py-4 items-center">
+                                                <LucideEye className="w-4 h-4 text-blue-600 cursor-pointer"
+                                                    onClick={() => reviewEvalution(interview)} />
+
+                                                {interview.interviewRound.result == 0 &&
+                                                    <CheckCircle className="w-4 h-4 text-blue-600 cursor-pointer"
+                                                        onClick={() => setSelectDecision({ name: interview.interviewRound.candidateApplication.candidate.name, roundId: interview.roundId })} />
+                                                }
+                                            </td>
+                                        ) : (
+                                            <td className="flex gap-4 px-6 py-4 items-center">
                                                 <CalendarCheck
                                                     className="w-4 h-4 text-green-600 cursor-pointer"
                                                     onClick={() => SetSelectedInterview(interview)}
                                                 />
-                                            )}
-                                        </td>
+                                            </td>
+                                        )}
+
                                     </tr>
                                 ))}
                             </tbody>
@@ -406,52 +457,71 @@ export function Interviews() {
                         </div>
 
                         {/* Footer Buttons */}
-                        <div className="border-t pt-4 flex justify-end space-x-3">
-                            <button
-                                onClick={() => SetSelectedInterview(null)}
-                                className="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg"
-                            >
-                                Cancel
-                            </button>
-                            <button
-                                onClick={handleSubmitFeedback}
-                                disabled={!feedback.feedbackText || feedback.feedbackScore === 0}
-                                className="px-6 py-2 bg-blue-600 text-white rounded-lg font-bold hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
-                            >
-                                Submit Evaluation
-                            </button>
-                        </div>
+                        {selectedInterview.interviewRound.result == 0 &&
+                            <div className="border-t pt-4 flex justify-end space-x-3">
+                                <button
+                                    onClick={() => SetSelectedInterview(null)}
+                                    className="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg"
+                                >
+                                    Cancel
+                                </button>
+                                <button
+                                    onClick={handleSubmitFeedback}
+                                    disabled={!feedback.feedbackText || feedback.feedbackScore === 0}
+                                    className="px-6 py-2 bg-blue-600 text-white rounded-lg font-bold hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                                >
+                                    Submit Evaluation
+                                </button>
+                            </div>
+                        }
                     </div>
                 </Modal>
             )}
 
-            {/* Schedule Modal */}
-            <Modal isOpen={isScheduleModalOpen} onClose={() => setIsScheduleModalOpen(false)} title="Schedule Interview">
-                <form onSubmit={handleScheduleInterview} className="space-y-4">
-                    <Select label="Select Candidate" required />
-                    <Select label="Position" required />
-                    <div className="grid grid-cols-2 gap-4">
-                        <Input label="Date" type="date" required />
-                        <Input label="Time" type="time" required />
-                    </div>
-                    <div className="flex justify-end space-x-3">
-                        <Button variant="secondary" onClick={() => setIsScheduleModalOpen(false)}>Cancel</Button>
-                        <Button type="submit">Schedule</Button>
-                    </div>
-                </form>
-            </Modal>
+            {/* desicion modal */}
+            {selectDecision && (
+                <Modal
+                    isOpen={true}
+                    onClose={() => {
+                        setSelectDecision(null);
+                        setRemarks('');
+                    }}
+                    title="Interview Result"
+                >
+                    <div className="space-y-4">
+                        <p className="text-gray-700">
+                            Please choose an result for{' '}
+                            <strong>{selectDecision.name}</strong>
+                        </p>
 
-            {/* Feedback Modal */}
-            <Modal isOpen={isFeedbackModalOpen} onClose={() => setIsFeedbackModalOpen(false)} title="Interview Feedback">
-                <form onSubmit={handleSubmitFeedback} className="space-y-4">
-                    <textarea className="w-full border rounded-lg p-2" rows={4} />
-                    <Select label="Recommendation" required />
-                    <div className="flex justify-end space-x-3">
-                        <Button variant="secondary" onClick={() => setIsFeedbackModalOpen(false)}>Cancel</Button>
-                        <Button type="submit">Submit</Button>
+                        <textarea
+                            value={remarks}
+                            onChange={(e) => setRemarks(e.target.value)}
+                            placeholder="Add a short note (optional)"
+                            className="w-full border border-gray-300 rounded-lg p-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
+                            rows={3}
+                        />
+
+                        <div className="flex justify-end gap-3 pt-2">
+                            <button
+                                onClick={() => handleResult('Rejected')}
+                                className="px-4 py-2 bg-red-500 hover:bg-red-600 text-white rounded-lg text-sm font-medium"
+                            >
+                                Reject
+                            </button>
+
+                            <button
+                                onClick={() => handleResult('Selected')}
+                                className="px-4 py-2 bg-green-500 hover:bg-green-600 text-white rounded-lg text-sm font-medium"
+                            >
+                                Select
+                            </button>
+                        </div>
                     </div>
-                </form>
-            </Modal>
+                </Modal>
+            )
+
+            }
         </div>
     );
 }

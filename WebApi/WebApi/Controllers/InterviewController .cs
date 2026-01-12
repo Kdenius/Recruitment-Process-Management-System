@@ -59,20 +59,12 @@ namespace WebApi.Controllers
         {
             var interview = await _repo.GetInterviewByIdAsync(dto.InterviewId);
 
-            interview.FeedbackText = dto.FeedbackText;
-            interview.FeedbackScore = dto.FeedbackScore;
+            if (interview == null)
+                return NotFound("Interview not found");
 
-            var ratings = dto.Ratings.Select(r => new InterviewRating
-            {
-                InterviewId = interview.InterviewId,
-                SkillId = r.SkillId,
-                Rating = r.Rating,
-                Remark = r.Remark
-            }).ToList();
+            await _repo.SubmitFeedbackAsync(interview, dto);
 
-            await _repo.SubmitFeedbackAsync(interview, ratings);
-
-            return Ok(new { message = "Feedback submitted" });
+            return Ok(new { message = "Feedback submitted/updated successfully" });
         }
 
         [HttpPost("decision")]

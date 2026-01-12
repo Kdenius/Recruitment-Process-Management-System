@@ -14,6 +14,7 @@ namespace WebApi.Models
 
         public ICollection<PositionSkill> PositionSkills { get; set; }
         public ICollection<CandidateSkill> CandidateSkills { get; set; }
+        [JsonIgnore]
         public ICollection<InterviewRating> InterviewRatings { get; set; }
     }
 }

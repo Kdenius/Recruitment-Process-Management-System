@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.Text.Json.Serialization;
 
 namespace WebApi.Models
 {
@@ -6,8 +7,8 @@ namespace WebApi.Models
     {
         [Key]
         public int RatingId { get; set; }
-
         public int InterviewId { get; set; }
+        [JsonIgnore]
         public Interview Interview { get; set; }
 
         public int SkillId { get; set; }
