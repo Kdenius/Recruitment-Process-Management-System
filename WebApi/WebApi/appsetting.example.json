@@ -1,0 +1,28 @@
+﻿{
+  "Logging": {
+    "LogLevel": {
+      "Default": "Information",
+      "Microsoft.AspNetCore": "Warning"
+    }
+  },
+  "AllowedHosts": "*",
+  "ConnectionStrings": {
+    "ProjectDB": "Data Source=(localdb)\\mssqllocaldb;Initial Catalog=ProjectDB;Integrated Security=True; MultipleActiveResultSets=true;"
+  },
+  "Jwt": {
+    "Key": "YOUR_SECRET_JWT_KEY_HERE",
+    "Issuer": "YOUR_ISSUER_HERE",
+    "Audience": "YOUR_AUDIENCE_HERE",
+    "ExpiresInDays": 30
+  },
+  "Admin": {
+    "PasswordHashed": "YOUR_ADMIN_PASSWORD_HASH_HERE",
+    "Mail": "YOUR_ADMIN_EMAIL_HERE"
+  },
+  "EmailSettings": {
+    "SmtpServer": "smtp.gmail.com",
+    "SmtpPort": 587,
+    "SenderEmail": "YOUR_EMAIL_HERE",
+    "SenderPassword": "YOUR_EMAIL_PASSWORD_HERE"
+  }
+}
