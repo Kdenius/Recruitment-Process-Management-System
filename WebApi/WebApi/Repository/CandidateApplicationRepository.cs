@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using WebApi.DTO;
 using WebApi.Models;
 
 namespace WebApi.Repository
@@ -10,6 +11,7 @@ namespace WebApi.Repository
         Task<CandidateApplication> GetApplicationsByIdAsync(int applicationId);
         Task<List<object>> GetAllCandidateApplicationsAsync();
         Task<bool> UpdateApplicationStatusAsync(int applicationId, string status, string? details = null);
+        Task<List<ApplicationWithInterviewsDTO>> GetApplicationsWithInterviewsAsync();
     }
     public class CandidateApplicationRepository : ICandidateApplicationRepository
     {
@@ -116,6 +118,51 @@ namespace WebApi.Repository
             await _con.SaveChangesAsync();
             return true;
         }
+
+        public async Task<List<ApplicationWithInterviewsDTO>> GetApplicationsWithInterviewsAsync()
+        {
+            return await _con.CandidateApplications
+                .Include(a => a.Candidate)
+                .Include(a => a.Position)
+                .Include(a => a.InterviewRounds)
+                    .ThenInclude(r => r.Interviews)
+                        .ThenInclude(i => i.InterviewRatings)
+                            .ThenInclude(r => r.Skill)
+                .Select(a => new ApplicationWithInterviewsDTO
+                {
+                    ApplicationId = a.ApplicationId,
+                    CandidateName = a.Candidate.Name,
+                    Position = a.Position.Title,
+                    Status = a.Status,
+                    CreatedAt = a.CreatedAt,
+                    Interviews = a.InterviewRounds
+                        .SelectMany(r => r.Interviews)
+                        .Select(i => new ApplicationInterviewDTO
+                        {
+                            InterviewId = i.InterviewId,
+                            RoundNumber = i.InterviewRound.RoundNumber,
+                            RoundType = i.InterviewRound.RoundType.TypeName,
+                            IsCompleted = i.InterviewRound.IsCompleted,
+                            Result = i.InterviewRound.Result.ToString(),
+                            Details = i.InterviewRound.IsCompleted && i.FeedbackScore.HasValue
+                                ? new InterviewDetailsDTO
+                                {
+                                    FeedbackScore = i.FeedbackScore.Value,
+                                    FeedbackText = i.FeedbackText,
+                                    Ratings = i.InterviewRatings
+                                        .Select(r => new InterviewSkillRatingDTO
+                                        {
+                                            Skill = r.Skill.SkillName,
+                                            Rating = r.Rating,
+                                            Remark = r.Remark
+                                        }).ToList()
+                                }
+                                : null
+                        }).ToList()
+                })
+                .ToListAsync();
+        }
+
 
 
     }

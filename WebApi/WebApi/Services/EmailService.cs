@@ -19,7 +19,8 @@ namespace WebApi.Services
         Task InterviewScheduled(string candidateName, string email, string positionName, string roundName, DateTime scheduledAt, string mode, string locationOrLink);
 
         Task InterviewResult(string candidateName, string email, string positionName, string roundName, string result, string remarks);
-
+        Task SelectedCandidateEmail(string candidateName, string email, string positionName);
+        Task RejectedCandidateEmail(string candidateName, string email, string positionName);
     }
     public class EmailService : IEmailService
     {
@@ -165,5 +166,30 @@ namespace WebApi.Services
                 body
             );
         }
+        public async Task SelectedCandidateEmail(string candidateName, string email, string positionName)
+        {
+            var templatePath = Path.Combine(Directory.GetCurrentDirectory(), "Template", "SelectionMail.html");
+            string body = File.ReadAllText(templatePath);
+            
+            body = body.Replace("{{CandidateName}}", candidateName)
+                       .Replace("{{PositionName}}", positionName)
+                       .Replace("{{Date}}", DateTime.Now.ToString("dd MM yyyy"))
+                       .Replace("{{Year}}", DateTime.Now.Year.ToString());
+
+            await SendEmailAsync(email, $"Congratulations! You are selected – {positionName}", body);
+        }
+
+        public async Task RejectedCandidateEmail(string candidateName, string email, string positionName)
+        {
+            var templatePath = Path.Combine(Directory.GetCurrentDirectory(), "Template", "RejectionMail.html");
+            string body = File.ReadAllText(templatePath);
+
+            body = body.Replace("{{CandidateName}}", candidateName)
+                       .Replace("{{PositionName}}", positionName)
+                       .Replace("{{Year}}", DateTime.Now.Year.ToString());
+
+            await SendEmailAsync(email, $"Application Update – {positionName}", body);
+        }
+
     }
 }

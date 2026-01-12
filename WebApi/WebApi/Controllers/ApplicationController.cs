@@ -36,16 +36,28 @@ namespace WebApi.Controllers
 
             try
             {
-                if(updateStatusDTO.Status == "Shortlisted")
+                if (updateStatusDTO.Status == "Shortlisted")
                     await _emailService.Shortlisted(app.Candidate.Name, app.Candidate.Email, app.Position.Title, DateTime.Now.ToShortDateString());
+                else if (updateStatusDTO.Status == "Selected")
+                    await _emailService.SelectedCandidateEmail(app.Candidate.Name, app.Candidate.Email, app.Position.Title);
+                else if (updateStatusDTO.Status == "Rejected")
+                    await _emailService.RejectedCandidateEmail(app.Candidate.Name, app.Candidate.Email, app.Position.Title);
+
 
             }
             catch (Exception ex)
             {
-                return BadRequest(new ApiResponse<object>(success: false, message: $"Issue on mail verification, please check Email"));
+                return BadRequest(new ApiResponse<object>(success: false, message: $"Issue on mail sending, please check Email : {app.Candidate.Email}"));
 
             }
             return Ok(new { message = "Application status updated successfully" });
         }
+        [HttpGet("applications-with-interviews")]
+        public async Task<IActionResult> GetApplicationsWithInterviews()
+        {
+            var applications = await _candidateApplicationRepository.GetApplicationsWithInterviewsAsync();
+            return Ok(applications);
+        }
+
     }
 }

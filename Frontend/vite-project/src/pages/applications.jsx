@@ -82,36 +82,36 @@ export function Applications() {
       } catch (e) { }
       finally { }
     }
-    const fetchRoundandInter = async () => {
-      try {
-        const ret = await fetch(import.meta.env.VITE_API_URI + '/user/interviewers', {
-          headers: {
-            'Content-Type': 'application/json',
-            // 'Authorization': `Bearer ${user.jwtToken}`
+      const fetchRoundandInter = async () => {
+        try {
+          const ret = await fetch(import.meta.env.VITE_API_URI + '/user/interviewers', {
+            headers: {
+              'Content-Type': 'application/json',
+              // 'Authorization': `Bearer ${user.jwtToken}`
+            }
+          });
+          const data = await ret.json();
+          if (!ret.ok) {
+            new Error(data.message)
           }
-        });
-        const data = await ret.json();
-        if (!ret.ok) {
-          new Error(data.message)
-        }
-        SetInterviewers(data);
+          SetInterviewers(data);
 
-        const ret2 = await fetch(import.meta.env.VITE_API_URI + '/round-types', {
-          headers: {
-            'Content-Type': 'application/json',
-            // 'Authorization': `Bearer ${user.jwtToken}`
+          const ret2 = await fetch(import.meta.env.VITE_API_URI + '/round-types', {
+            headers: {
+              'Content-Type': 'application/json',
+              // 'Authorization': `Bearer ${user.jwtToken}`
+            }
+          })
+          const data2 = await ret2.json();
+          console.log(data2)
+          if (!ret2.ok) {
+            new Error(data2.message)
           }
-        })
-        const data2 = await ret2.json();
-        console.log(data2)
-        if (!ret2.ok) {
-          new Error(data2.message)
+          setRound(data2);
+        } catch (e) {
+          console.log(e)
         }
-        setRound(data2);
-      } catch (e) {
-        console.log(e)
       }
-    }
     fetchApplication();
     if (user?.roleName == "Recruiter") {
       fetchRoundandInter();

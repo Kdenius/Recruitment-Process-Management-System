@@ -15,7 +15,7 @@ namespace WebApi.Models
         public int PositionId { get; set; }
         public Position Position { get; set; }
 
-        public string Status { get; set; }
+        public string Status { get; set; } // on screeing, shortlisted , interview, selected
         public string? Details { get; set; }
 
         public DateTime CreatedAt { get; set; }

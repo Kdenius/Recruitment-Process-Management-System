@@ -11,11 +11,14 @@ import {
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { CandidateDashboard } from './canDashboard';
+import { RecruiterDashboard } from './recDashboard';
 
 export function Dashboard() {
     const { user, hasRole  } = useAuth();
     if(hasRole("Candidate"))
         return <CandidateDashboard/>;
+    else if(hasRole("Recruiter"))
+        return <RecruiterDashboard/>;
 
     const stats = [
         {
