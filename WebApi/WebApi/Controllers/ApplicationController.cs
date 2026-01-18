@@ -59,5 +59,15 @@ namespace WebApi.Controllers
             return Ok(applications);
         }
 
+        [HttpGet("applications-with-documents")]
+        public async Task<IActionResult> GetApplicationsWithDocuments()
+        {
+            var applications = await _candidateApplicationRepository
+                .GetApplicationsWithDocumentsAsync();
+
+            return Ok(applications);
+        }
+
+
     }
 }

@@ -12,6 +12,8 @@ namespace WebApi.Repository
         Task<List<object>> GetAllCandidateApplicationsAsync();
         Task<bool> UpdateApplicationStatusAsync(int applicationId, string status, string? details = null);
         Task<List<ApplicationWithInterviewsDTO>> GetApplicationsWithInterviewsAsync();
+        Task<List<ApplicationWithDocumentsDTO>> GetApplicationsWithDocumentsAsync();
+
     }
     public class CandidateApplicationRepository : ICandidateApplicationRepository
     {
@@ -163,7 +165,45 @@ namespace WebApi.Repository
                 .ToListAsync();
         }
 
+        public async Task<List<ApplicationWithDocumentsDTO>> GetApplicationsWithDocumentsAsync()
+        {
+            var allowedStatuses = new[]
+            {
+                "Selected",
+                "DocVerification",
+                "DocsSubmitted",
+                "DocsVerified"
+            };
 
+            return await _con.CandidateApplications
+                .Where(a => allowedStatuses.Contains(a.Status))
+                .Include(a => a.Candidate)
+                .Include(a => a.Position)
+                .Include(a => a.CandidateDocuments)
+                    .ThenInclude(d => d.DocumentType)
+                .OrderByDescending(a => a.ApplicationId)
+                .Select(a => new ApplicationWithDocumentsDTO
+                {
+                    ApplicationId = a.ApplicationId,
+                    CandidateName = a.Candidate.Name,
+                    Position = a.Position.Title,
+                    Status = a.Status,
+                    CreatedAt = a.CreatedAt,
+
+                    Documents = a.CandidateDocuments
+                        .Select(d => new ApplicationDocumentDTO
+                        {
+                            DocumentId = d.DocumentId,
+                            DocTypeId = d.DocTypeId,
+                            DocTypeName = d.DocumentType.DocTypeName,
+                            DocumentUrl = d.DocumentUrl,
+                            IsVerified = d.IsVerified,
+                            UploadedAt = d.UploadedAt
+                        })
+                        .ToList()
+                })
+                .ToListAsync();
+        }
 
     }
 }

@@ -16,6 +16,7 @@ import { CandidateLogin } from './pages/candidateLogin'
 import { CandidateDashboard } from './pages/canDashboard'
 import { Applications } from './pages/applications'
 import { Interviews } from './pages/interviews'
+import { CandidateDocuments } from './pages/canDocuments'
 
 function App() {
   return (
@@ -28,6 +29,7 @@ function App() {
         <Route path="signup" element={<Signup/>}/>
         <Route path="admin-login" element={<AdminLogin/>}/>
         <Route path="candidate-login" element={<CandidateLogin/>}/>
+        <Route path="documents" element={<ProtectedRoute><Layout><CandidateDocuments/></Layout></ProtectedRoute>}/>
 {/* <Route path="/cdash" element={<Layout><CandidateDashboard/></Layout>} /> */}
         <Route path="interviews" element={<ProtectedRoute><Layout><Interviews/></Layout></ProtectedRoute>}/>
         <Route path="application" element={<ProtectedRoute allowedRoles={['Candidate', 'Reviewer', 'Recruiter']}><Layout><Applications/></Layout></ProtectedRoute>}/>

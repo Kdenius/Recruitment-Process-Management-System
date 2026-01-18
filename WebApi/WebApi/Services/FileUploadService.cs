@@ -3,6 +3,7 @@
     public interface IFileUploadService
     {
         Task<string> UploadFileAsync(IFormFile file);
+        void DeleteFile(string filePath);
     }
     public class FileUploadService : IFileUploadService
     {
@@ -20,8 +21,7 @@
 
         public async Task<string> UploadFileAsync(IFormFile file)
         {
-            var fileExtension = Path.GetExtension(file.FileName);
-            var fileName = $"{Guid.NewGuid()}{fileExtension}";
+            var fileName = $"{Guid.NewGuid()}{(file.FileName)}";
             var physicalPath = Path.Combine(_uploadFolderPath, fileName);
 
             using (var stream = new FileStream(physicalPath, FileMode.Create))
@@ -30,6 +30,19 @@
             }
 
             return $"uploads/{fileName}";
+        }
+        public async void DeleteFile(string filePath)
+        {
+            if (string.IsNullOrWhiteSpace(filePath))
+                return;
+
+            var fileName = Path.GetFileName(filePath);
+            var physicalPath = Path.Combine(_uploadFolderPath, fileName);
+
+            if (File.Exists(physicalPath))
+            {
+                File.Delete(physicalPath);
+            }
         }
     }
 }

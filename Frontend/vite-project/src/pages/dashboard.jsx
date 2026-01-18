@@ -12,6 +12,7 @@ import {
 import { useAuth } from '../context/AuthContext';
 import { CandidateDashboard } from './canDashboard';
 import { RecruiterDashboard } from './recDashboard';
+import { HrDashboard } from './hrDashboard';
 
 export function Dashboard() {
     const { user, hasRole  } = useAuth();
@@ -19,6 +20,8 @@ export function Dashboard() {
         return <CandidateDashboard/>;
     else if(hasRole("Recruiter"))
         return <RecruiterDashboard/>;
+    else if(hasRole("Hr"))
+        return <HrDashboard/>;
 
     const stats = [
         {

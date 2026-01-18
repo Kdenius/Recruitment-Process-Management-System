@@ -9,6 +9,11 @@ namespace WebApi.Repository
         Task UploadDocumentAsync(int applicationId, int docTypeId, string filePath);
         Task<List<CandidateDocument>> GetDocumentsByApplicationAsync(int applicationId);
         Task VerifyDocumentAsync(int documentId);
+        Task<List<CandidateDocument>> GetDocumentsByCandidateForVerificationAsync(int candidateId);
+
+        Task<CandidateDocument?> GetDocumentAsync(int applicationId, int docTypeId);
+
+
     }
     public class DocumentVerificationRepository : IDocumentVerificationRepository
     {
@@ -30,15 +35,21 @@ namespace WebApi.Repository
 
             application.Status = "DocVerification";
 
+            var existingDocTypeIds = application.CandidateDocuments
+                .Select(d => d.DocTypeId)
+                .ToHashSet();
+
             foreach (var docTypeId in docTypeIds)
             {
-                if (!application.CandidateDocuments.Any(d => d.DocTypeId == docTypeId))
+                if (!existingDocTypeIds.Contains(docTypeId))
                 {
                     application.CandidateDocuments.Add(new CandidateDocument
                     {
                         ApplicationId = applicationId,
                         DocTypeId = docTypeId,
-                        IsVerified = false
+                        IsVerified = false,
+                        DocumentUrl = null,
+                        UploadedAt = null
                     });
                 }
             }
@@ -103,6 +114,24 @@ namespace WebApi.Repository
 
             await _context.SaveChangesAsync();
         }
+
+        public async Task<List<CandidateDocument>> GetDocumentsByCandidateForVerificationAsync(int candidateId)
+        {
+            return await _context.CandidateDocuments
+                .Include(d => d.DocumentType)
+                .Where(d =>
+                    d.CandidateApplication.CandidateId == candidateId &&
+                    d.CandidateApplication.Status == "DocVerification")
+                .ToListAsync();
+        }
+        public async Task<CandidateDocument?> GetDocumentAsync(int applicationId, int docTypeId)
+        {
+            return await _context.CandidateDocuments
+                .FirstOrDefaultAsync(d =>
+                    d.ApplicationId == applicationId &&
+                    d.DocTypeId == docTypeId);
+        }
+
     }
 
 }

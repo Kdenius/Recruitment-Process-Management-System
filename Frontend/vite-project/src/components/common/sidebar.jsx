@@ -42,7 +42,7 @@ const navItems = [
     name: 'Documents',
     path: '/documents',
     icon: FileText,
-    roles: ['Admin', 'hr', 'viewer'],
+    roles: ['Admin', 'hr', 'viewer', 'Candidate'],
   },
   {
     name: 'Reports',

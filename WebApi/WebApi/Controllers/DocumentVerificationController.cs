@@ -7,18 +7,20 @@ using WebApi.Services;
 namespace WebApi.Controllers
 {
     [ApiController]
-    [Route("api/document-verification")]
+    [Route("document-verification")]
     public class DocumentVerificationController : ControllerBase
     {
         private readonly IDocumentVerificationRepository _repo;
         private readonly ICandidateApplicationRepository _candidateApplicationRepository;
         private readonly IEmailService _email;
+        private readonly IFileUploadService _fileUploadService;
 
-        public DocumentVerificationController(IDocumentVerificationRepository repo, ICandidateApplicationRepository candidateApplicationRepository, IEmailService email)
+        public DocumentVerificationController(IDocumentVerificationRepository repo, ICandidateApplicationRepository candidateApplicationRepository, IEmailService email, IFileUploadService fileUploadService)
         {
             _repo = repo;
             _candidateApplicationRepository = candidateApplicationRepository;
             _email = email;
+            _fileUploadService = fileUploadService;
         }
 
         [HttpPost("request")]
@@ -36,20 +38,17 @@ namespace WebApi.Controllers
         [HttpPost("upload")]
         public async Task<IActionResult> UploadDocument([FromForm] UploadDocumentDTO dto)
         {
-            var uploadsFolder = Path.Combine(Directory.GetCurrentDirectory(), "Uploads");
-
-            if (!Directory.Exists(uploadsFolder))
-                Directory.CreateDirectory(uploadsFolder);
-
-            var fileName = $"{Guid.NewGuid()}_{dto.File.FileName}";
-            var filePath = Path.Combine(uploadsFolder, fileName);
-
-            using (var stream = new FileStream(filePath, FileMode.Create))
+            var existingDoc = await _repo.GetDocumentAsync(
+                dto.ApplicationId,
+                dto.DocTypeId
+            );
+            if (existingDoc != null)
             {
-                await dto.File.CopyToAsync(stream);
+                _fileUploadService.DeleteFile(existingDoc.DocumentUrl);
             }
+            var filePath = await _fileUploadService.UploadFileAsync(dto.File);
 
-            await _repo.UploadDocumentAsync(dto.ApplicationId, dto.DocTypeId, $"Uploads/{fileName}");
+            await _repo.UploadDocumentAsync(dto.ApplicationId, dto.DocTypeId, filePath);
 
             return Ok(new { message = "Document uploaded successfully" });
         }
@@ -69,6 +68,15 @@ namespace WebApi.Controllers
             await _repo.VerifyDocumentAsync(dto.DocumentId);
             return Ok(new { message = "Document verified" });
         }
+
+        // Candidate ne doc jova
+        [HttpGet("candidate/{candidateId}")]
+        public async Task<IActionResult> GetDocumentsByCandidate(int candidateId)
+        {
+            var docs = await _repo.GetDocumentsByCandidateForVerificationAsync(candidateId);
+            return Ok(docs);
+        }
+
     }
 
 }
